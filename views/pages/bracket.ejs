@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles/overlay.css" />
+    <script src="/scripts/bracket.js" defer></script>
+    <script src="/scripts/overlay.js" defer></script>
+    <title><%= date %> Group <%= group %></title>
+  </head>
+  <body>
+    <%- include('../partials/match-overlay.ejs') %>
+    <h2>List of participants for <%= date %> group <%= group %>:</h2>
+    <div id="main-bracket">
+        <% for(let participants of sections) { %>
+      <ul>
+        <% for (let participant of participants) { %>
+        <li><%= participant %></li>
+        <% } %>
+      </ul>
+      <% } %>
+    </div>
+    <button id="start-match-button">Start matchup</button>
+  </body>
+</html>

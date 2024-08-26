@@ -1,0 +1,4 @@
+#main-bracket {
+    display: flex;
+    flex-direction: row;
+}
