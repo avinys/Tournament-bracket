@@ -9,8 +9,9 @@
     <title><%= date %> Group <%= group %></title>
   </head>
   <body>
+    <%- include('../partials/bracket-result-overlay.ejs') %>
     <%- include('../partials/match-overlay.ejs') %>
-    <h2>List of participants for <%= date %> group <%= group %>:</h2>
+    <h2 id="bracket-name">List of participants for <%= date %> group <%= group %>:</h2>
     <div id="main-bracket">
         <% for(let participants of sections) { %>
       <ul>

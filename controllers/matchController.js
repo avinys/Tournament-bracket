@@ -22,11 +22,18 @@ async function getNextMatch(req, res) {
 
     let clientData = newMatch;
 
-    const responseData = {
+    let responseData = {
         message: 'Data received successfully!',
-        receivedData: clientData
+        receivedData: clientData,
+        isEnd: false
     };
-    //console.log(clientData);
+    if(clientData.length == 4) {
+        responseData["message"] += " Bracket Ended.";
+        responseData["isEnd"] = true;
+    }
+
+    
+    console.log("Client Data: ", responseData);
 
     res.json(responseData);
 }
@@ -39,12 +46,20 @@ async function postMatch(req, res) {
     await match.matchResult(winner);
     let sections = await match.getParticipants();
 
-    const responseData = {
+    let responseData = {
         message: 'Winner posted succesfully!',
-        sections: sections
+        sections: sections,
+        isEnd: false
     };
-    // let section = await match.getParticipants();
-    // res.render("pages/bracket.ejs", { date: date, group: group, sections: sections})
+
+    if(match.finalFlag == true) {
+        responseData = {
+            message: "Winner posted succesfully. Group Bracket ended.",
+            sections: sections,
+            isEnd: true
+        }
+    }
+
     return res.json(responseData)
 }
 
