@@ -1,4 +1,4 @@
-const Match = require("../models/matchModel")
+const Match = require("../models/matchModelAternating")
 
 let currentIndex = 0;
 let matchArray = [];
@@ -53,6 +53,7 @@ async function postMatch(req, res) {
     };
 
     if(match.finalFlag == true) {
+        //match.writeSectionsToFile();
         responseData = {
             message: "Winner posted succesfully. Group Bracket ended.",
             sections: sections,

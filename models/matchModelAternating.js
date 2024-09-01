@@ -8,6 +8,7 @@ class Match {
     this.date = date;
     this.group = group;
     this.filePath = "./data/" + date + "-group-" + group + ".txt";
+    this.resultFilePath = "./data/" + date + "-group-" + group + "-results.txt";
     this.sections = [];
     this.currentSection = [];
     this.currentMatchIndex = 0;
@@ -17,6 +18,9 @@ class Match {
     this.losers = [];
     this.place3Done = false;
     this.place3Sent = false;
+    // If alternatingPicker == false, execute matches top to bottom
+    // If alternatingPicker == true, execute matches bottom to top
+    this.alternatingPicker = false;
   }
 
   async loadSections() {
@@ -54,51 +58,65 @@ class Match {
   }
 
   async getMatch() {
+    await this.loadSections();
+    console.log("Sections in getMatch: ", this.sections)
     if (this.results[0] != "") return this.results;
 
-    await this.loadSections();
-
     // Add a new section if the round is over
-    if (this.currentSection.length - 1 <= this.currentMatchIndex) {
+    if (this.currentSection.length - 1 < this.currentMatchIndex) {
       await this.createNewSection();
       this.roundEnded = true;
+      if(this.alternatingPicker == true)
+        this.alternatingPicker = false;
+      else 
+        this.alternatingPicker = true;
+    }
+    // If down to 2 participants, execute small and big final mode
+    if (this.currentSection.length == 2) {
+      return this.getMatchFinal();
     }
 
-    // console.log(
-    //   "Sections:",
-    //   this.sections,
-    //   "Results: ",
-    //   this.results,
-    //   "3 place sent: ",
-    //   this.place3Sent,
-    //   "3 place done",
-    //   this.place3Done
-    // );
-    // If down to 4 participants, execute semi-final mode
-    if (this.currentSection.length <= 2) {
-      return await this.getMatchFinal();
-    }
-
-    if (this.currentSection.length - 1 == this.currentMatchIndex) {
-      await this.matchResult(this.currentMatchIndex);
-      return [
-        this.currentSection[this.currentMatchIndex],
-        [this.currentMatchIndex],
-      ];
-    } else if (this.currentSection.length != 0) {
-      return [
-        [
-          this.currentSection[this.currentMatchIndex],
-          this.currentSection[this.currentMatchIndex + 1],
-        ],
-        [this.currentMatchIndex, this.currentMatchIndex + 1],
-      ];
+    // Normal order execution
+    if(this.alternatingPicker == false) {
+      // If need to push one player left
+      if(this.currentSection.length - 1 == this.currentMatchIndex) {
+        await this.matchResult(this.currentMatchIndex);
+        return [
+            this.currentSection[this.currentMatchIndex],
+            this.currentMatchIndex
+        ]
+      } else if (this.currentSection.length != 0) {
+        return [
+            [
+              this.currentSection[this.currentMatchIndex],
+              this.currentSection[this.currentMatchIndex + 1],
+            ],
+            [this.currentMatchIndex, this.currentMatchIndex + 1],
+          ];
+      } else
+          return [[],[]];
+    // Reverse order execution
     } else {
-      return [[], []];
+        // If need to push one player left
+        if(this.currentSection.length - 1 == this.currentMatchIndex) {
+            await this.matchResult(0);
+            return [this.currentSection[0], 0]
+        } else if (this.currentSection.length != 0) {
+            return [
+                [
+                  this.currentSection[this.currentSection.length - this.currentMatchIndex - 1],
+                  this.currentSection[this.currentSection.length - this.currentMatchIndex - 2],
+                ],
+                [
+                    this.currentSection.length - this.currentMatchIndex - 1,
+                    this.currentSection.length - this.currentMatchIndex - 2
+                ],
+              ];
+        }
     }
   }
 
-  async getMatchFinal() {
+  getMatchFinal() {
     console.log("getMatchFinal(). Sections: ", this.sections)
     if (this.currentSection.length == 2) {
       if (!this.place3Done) {
@@ -125,20 +143,42 @@ class Match {
     // If handling the match for 3rd place and 1st place
     console.log("matchResult funkcija, ar 3 place sent: ", this.place3Sent);
     if (this.place3Sent) await this.matchResult3Place(winnerIndex);
+    // If not handling the match for 3rd place
     else {
-      // If not handling the match for 3rd place
-      this.sections[this.sections.length - 1].push(
-        this.currentSection[winnerIndex]
-      );
-      // Saving losers
-      if (winnerIndex == this.currentMatchIndex) {
-        if (this.currentSection.length - 1 != winnerIndex)
-          this.losers.push(this.currentSection[this.currentMatchIndex + 1]);
+      if(this.alternatingPicker == false) {
+        this.sections[this.sections.length - 1].push(this.currentSection[winnerIndex]);
       } else {
-        this.losers.push(this.currentSection[this.currentMatchIndex]);
+        this.sections[this.sections.length - 1].unshift(this.currentSection[winnerIndex]);
       }
-      // Writing the winner to file
-      await this.writeWinnerToFile();
+
+      // Saving losers
+      if(this.currentSection.length - 1 != this.currentMatchIndex) {
+        if(this.alternatingPicker == false) {
+            if(winnerIndex == this.currentMatchIndex)
+                this.losers.push(this.currentSection[this.currentMatchIndex + 1]);
+            else
+                this.losers.push(this.currentSection[this.currentMatchIndex]);
+        } else if(this.alternatingPicker == true) {
+            const higherIndex = this.currentSection.length - this.currentMatchIndex - 1;
+            if(winnerIndex == higherIndex)
+                this.losers.push(this.currentSection[higherIndex - 1])
+            else 
+                this.losers.push(this.currentSection[higherIndex])
+        }
+      }
+      this.currentMatchIndex += 2;
+      console.log("Sections in matchResult: ", this.sections);
+      this.writeSectionsToFile();
+
+    //   if (winnerIndex == this.currentMatchIndex) {
+    //     if (this.currentSection.length - 1 != winnerIndex)
+    //       this.losers.push(this.currentSection[this.currentMatchIndex + 1]);
+    //   } else {
+    //     this.losers.push(this.currentSection[this.currentMatchIndex]);
+    //   }
+
+      // Writing the winner to file IF ALTERNATING, NEED TO WRITE ONLY AFTER ROUND END
+      //await this.writeWinnerToFile();
     }
   }
 
@@ -165,6 +205,7 @@ class Match {
     }
     this.place3Done = true;
     console.log("matchResult3Place. Sections: ", this.sections)
+    this.writeSectionsToFile();
   }
 
   async writeWinnerToFile() {
@@ -172,7 +213,7 @@ class Match {
     let dataToWrite = `${lastSection[lastSection.length - 1]}\n`;
     try {
       await fs.appendFile(this.filePath, dataToWrite, "utf-8");
-      this.currentMatchIndex += 2;
+      //this.currentMatchIndex += 2;
       if (this.currentMatchIndex == this.currentSection.length - 1) {
         await fs.appendFile(
           this.filePath,
@@ -186,7 +227,21 @@ class Match {
     } catch (err) {
       console.error("Error writing to file:", err);
     }
-    await this.loadSections();
+    //await this.loadSections();
+  }
+
+  async writeSectionsToFile() {
+    try{
+        const customData = this.sections.map(innerArray => innerArray.join('\n')).join('\n\nbreak\n\n'); 
+        let resultData = "";
+        for(let i=0; i < this.results.length; i++) {
+          resultData += `${i+1} place: ${this.results[i]}\n`
+        }
+        await fs.writeFile(this.filePath, customData);
+        await fs.writeFile(this.resultFilePath, resultData);
+    }catch(err){
+        console.error('Error writing to file:', err);
+    }
   }
 
   async createNewSection() {
