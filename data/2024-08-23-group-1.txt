@@ -1,20 +1,23 @@
-Tomas
-Ignas
-Rokas
-Titas
-Rimas
-Markas
+A
+B
+C
+D
+E
+F
+G
+H
 
 break
 
-Tomas
-Rokas
-Markas
+A
+C
+F
+H
 
 break
 
-Rokas
-Markas
+A
+F
 
 break
 

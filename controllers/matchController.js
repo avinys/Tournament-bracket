@@ -1,4 +1,6 @@
-const Match = require("../models/matchModelAternating")
+//const Match = require("../models/matchModelAlternating")
+//const Match = require("../models/matchModel")
+const Match = require("../models/matchModelDoubleElimination")
 
 let currentIndex = 0;
 let matchArray = [];
