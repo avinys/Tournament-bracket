@@ -1,5 +1,17 @@
 #main-bracket {
     display: flex;
     flex-direction: row;
+    width: 90%;
+    margin: 5% 5%;
+}
+
+ul{
+    width: 100%;
+}
+
+#bracket-aac
+
+#bracket-actions button {
+    margin: 0px auto;
 }
 

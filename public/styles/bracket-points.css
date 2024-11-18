@@ -1,0 +1,55 @@
+li div {
+    display: flex;
+    flex-direction: row;
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    padding: 0;
+    margin: 0
+}
+
+li div p, li div h3 {
+    padding: 5px;
+    margin: 0;
+}
+
+li div h3{
+    font-style: bold;
+}
+
+li div p{
+    width: 33%;
+}
+
+li div h3 {
+    width: 35%;
+}
+
+#participant-points li {
+    display: flex;
+    flex-direction: row;
+    justify-items: left;
+    height: 30px;
+    margin: 0px 2px;
+    text-align: center;
+    justify-content: left;
+    padding: 10px;
+}
+
+#participant-points li input{
+    height: 30px;
+    margin: auto 30px;
+    /* padding: 0px; */
+    padding: 0px;
+    width: 60px;
+    border-radius: 5px;
+}
+
+#participant-points li p {
+    height: 20px;
+    margin: auto 0;
+    padding: 0px;
+    text-align: center;
+}

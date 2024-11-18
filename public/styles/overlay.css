@@ -46,6 +46,7 @@
 
 #overlay.active, #result-overlay.active {
     display:block;
+    overflow: auto;
 }
 
 #select-winner-overlay, #bracket-result-overlay {
@@ -59,6 +60,10 @@
     display: flex;
     flex-direction: column;
     border-radius: 6px;
+}
+
+#select-winner-overlay h2{
+    margin-bottom: 0px;
 }
 
 
@@ -99,5 +104,19 @@ button {
 }
 
 #overlay-skip,#overlay-submit,#overlay-back {
-    
+    border-radius: 5px;
+    width: 80px;
+}
+
+#overlay-skip:hover,#overlay-submit:hover,#overlay-back:hover {
+    opacity: 0.7;
+}
+
+#overlay-submit{
+    background-color: green;
+    color: white;
+}
+
+#overlay-back {
+    background-color: rgb(194, 192, 192);
 }

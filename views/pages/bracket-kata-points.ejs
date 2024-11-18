@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles/overlay.css" />
+    <link rel="stylesheet" href="/styles/bracket.css" />
+    <link rel="stylesheet" href="/styles/bracket-points.css" />
+    <script src="/scripts/bracket-kata-points.js" defer></script>
+    <script src="/scripts/overlay.js" defer></script>
+    <title><%= date %> Group <%= group %></title>
+  </head>
+  <body>
+    <%- include('../partials/bracket-result-overlay.ejs') %>
+    <%- include('../partials/match-overlay-kata-points.ejs') %>
+    <h2 id="bracket-name">List of participants for <%= date %> group <%= group %>:</h2>
+    <div id="main-bracket">
+    <% for(let participants of rounds) { %>
+      <ul id="participant-list-kata-points">
+        <li>
+            <div id="table-headerS">
+                <h3>Participant's name</h3>
+                <h3>Current round points</h3>
+                <h3>Points in total</h3>
+            </div>
+        </li>
+        <% for (let participant of participants) { %>
+        <li>
+            <div>
+                <p><%= participant.name %></p>
+                <p><%= participant.currentRoundPoints %></p>
+                <p><%= participant.totalPoints %></p>
+            </div>
+        </li>
+        <% } %>
+      </ul>
+    <% } %>
+    </div>
+    <div id="bracket-actions">
+      <button id="start-match-button">Start matchup</button>
+    </div>
+  </body>
+</html>
