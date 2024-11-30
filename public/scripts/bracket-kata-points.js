@@ -3,6 +3,10 @@ const startMatchBtn = document.getElementById("start-match-button");
 const overlay = document.getElementById("overlay");
 const overlayContents = document.getElementById("select-winner-overlay");
 const overlayHeader = document.querySelector("#select-winner-overlay h2");
+const finalNoticeDiv = document.getElementById("final-notice");
+const alertOverlay = document.getElementById("alert-overlay");
+const alertOverlayDiv = document.getElementById("alert-overlay-contents")
+const alertOverlayText = document.querySelector("#alert-overlay-contents p");
 
 const submitBtn = document.getElementById("overlay-submit");
 
@@ -16,6 +20,8 @@ const group = document
   .getElementById("bracket-name")
   .textContent.split(" ")[6]
   .split(":")[0];
+
+
 
 async function startMatch() {
   await fetch("/bracket-kata-points/next", {
@@ -37,6 +43,8 @@ async function startMatch() {
         fillResultOverlay(data["receivedData"]);
         if (!bracketResultOverlay.classList.contains("active"))
           bracketResultOverlay.classList.add("active");
+        if(finalNoticeDiv.classList.contains("active"))
+          finalNoticeDiv.classList.remove("active");
       } else {
         console.log("Data received:", data);
         overlayHeader.textContent = `Please input points for participant ${data["receivedData"].name}`;
@@ -54,12 +62,22 @@ async function startMatch() {
 async function postScore() {
   let inputs = document.querySelectorAll("#participant-points input");
   let scores = [];
-  for (let input of inputs) {
-    scores.push(input.value);
-    input.value = "";
-  }
 
+  for (let input of inputs) {
+    if (input.value != "") 
+      scores.push(input.value);
+  }
   console.log("Scores in postScore() script: ", scores);
+
+  if (scores.length < 3) {
+    alertOverlayText.textContent = "Please add points for at least 3 judges";
+    alertOverlay.classList.add("active");
+    return;
+  } else {
+    for (let input of inputs) {
+      input.value = ""
+    }
+  }
 
   await fetch("/bracket-kata-points/next", {
     method: "POST",
@@ -80,8 +98,16 @@ async function postScore() {
         overlay.classList.remove("active");
       if (bracketResultOverlay.classList.contains("active"))
         bracketResultOverlay.classList.remove("active");
+
+      if(data["isFinal"] == true) {
+        if (!finalNoticeDiv.classList.contains("active")) 
+          finalNoticeDiv.classList.add("active");
+      }
+
       if (data["isEnd"] == true) {
         startMatchBtn.textContent = "View Results";
+        if(finalNoticeDiv.classList.contains("active"))
+          finalNoticeDiv.classList.remove("active");
       }
       fillScoresInPage(data["participants"]);
     })
@@ -137,6 +163,27 @@ function fillScoresInPage(scores) {
     }
   }
   mainBracketDiv.appendChild(participantsUl);
+}
+
+function fillResultOverlay(result) {
+  bracketResultOverlayContent.innerHTML = "";
+  const h2Element = document.createElement("h2");
+  h2Element.textContent = `Results of the ${date} group ${group} bracket:`;
+  bracketResultOverlayContent.appendChild(h2Element);
+  const olElement = document.createElement("ol");
+
+  let counter = 1
+
+  result.forEach((result) => {
+    if (result != "") {
+      const liElement = document.createElement("li");
+      liElement.textContent = counter + ". " + result["name"] + " - " + result["totalPoints"];
+      olElement.appendChild(liElement);
+      counter++;
+    }
+  });
+
+  bracketResultOverlayContent.appendChild(olElement);
 }
 
 startMatchBtn.addEventListener("click", startMatch);
