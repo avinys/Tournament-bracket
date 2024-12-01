@@ -19,7 +19,7 @@ const group = document
 let addEventListenerToParticipantsFlag = false;
 
 async function postWinner(index) {
-  await fetch("/bracket/next", {
+  await fetch("/bracket-double-elimination/next", {
     method: "POST", // Specify the request method
     headers: {
       "Content-Type": "application/json", // Specify the content type
@@ -59,7 +59,7 @@ async function startMatch() {
   let participantOne;
   let participantTwo;
 
-  await fetch("/bracket/next", {
+  await fetch("/bracket-double-elimination/next", {
     method: "GET", // Specify the request method
     headers: {
       "Content-Type": "application/json", // Specify the content type

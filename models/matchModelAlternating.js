@@ -18,6 +18,7 @@ class Match {
     this.losers = [];
     this.place3Done = false;
     this.place3Sent = false;
+    this.two3places = false;
     // If alternatingPicker == false, execute matches top to bottom
     // If alternatingPicker == true, execute matches bottom to top
     this.alternatingPicker = false;
@@ -27,7 +28,7 @@ class Match {
     try {
       const data = await fs.readFile(this.filePath, "utf-8");
       this.sections = data
-        .split(/\s*break\s*/)
+        .split("--SECTION--")
         .map((section) => section.trim())
         //.filter((section) => section.length > 0)
         .map((section) =>
@@ -59,7 +60,7 @@ class Match {
 
   async getMatch() {
     await this.loadSections();
-    console.log("Sections in getMatch: ", this.sections)
+    console.log("Sections in getMatch(model): ", this.sections, "Alternating: ", this.alternatingPicker)
     if (this.results[0] != "") return this.results;
 
     // Add a new section if the round is over
@@ -82,7 +83,7 @@ class Match {
       if(this.currentSection.length - 1 == this.currentMatchIndex) {
         await this.matchResult(this.currentMatchIndex);
         return [
-            this.currentSection[this.currentMatchIndex],
+            this.currentSection[this.currentMatchIndex-2],
             this.currentMatchIndex
         ]
       } else if (this.currentSection.length != 0) {
@@ -117,12 +118,17 @@ class Match {
   }
 
   getMatchFinal() {
-    console.log("getMatchFinal(). Sections: ", this.sections)
+    console.log("getMatchFinal()(model). Sections: ", this.sections)
     if (this.currentSection.length == 2) {
       if (!this.place3Done) {
-        //this.currentSection.push(this.losers[this.losers.length - 1]);
-        //this.currentSection.push(this.losers[this.losers.length - 2]);
         this.place3Sent = true;
+
+        // Critical case if bracket consists of 3 participants
+        if(this.sections[0].length == 3) {
+          this.matchResult3Place(2)
+          return this.getMatchFinal()
+        }
+
         return [
           [
             this.losers[this.losers.length - 1],
@@ -141,7 +147,7 @@ class Match {
 
   async matchResult(winnerIndex) {
     // If handling the match for 3rd place and 1st place
-    console.log("matchResult funkcija, ar 3 place sent: ", this.place3Sent);
+    console.log("matchResult(model) funkcija, ar 3 place sent: ", this.place3Sent);
     if (this.place3Sent) await this.matchResult3Place(winnerIndex);
     // If not handling the match for 3rd place
     else {
@@ -167,7 +173,7 @@ class Match {
         }
       }
       this.currentMatchIndex += 2;
-      console.log("Sections in matchResult: ", this.sections);
+      console.log("Sections in matchResult(model): ", this.sections);
       this.writeSectionsToFile();
 
     //   if (winnerIndex == this.currentMatchIndex) {
@@ -204,7 +210,7 @@ class Match {
       this.results[3] = this.losers[this.losers.length - 1];
     }
     this.place3Done = true;
-    console.log("matchResult3Place. Sections: ", this.sections)
+    console.log("matchResult3Place(model). Sections: ", this.sections)
     this.writeSectionsToFile();
   }
 
@@ -232,7 +238,7 @@ class Match {
 
   async writeSectionsToFile() {
     try{
-        const customData = this.sections.map(innerArray => innerArray.join('\n')).join('\n\nbreak\n\n'); 
+        const customData = this.sections.map(innerArray => innerArray.join('\n')).join("\n--SECTION--\n"); 
         let resultData = "";
         for(let i=0; i < this.results.length; i++) {
           resultData += `${i+1} place: ${this.results[i]}\n`
@@ -249,7 +255,7 @@ class Match {
     this.currentSection = this.sections[this.sections.length - 1];
     this.sections.push([]);
     this.currentMatchIndex = 0;
-    let dataToWrite = "\nbreak\n\n";
+    let dataToWrite = "\n--SECTION--\n";
     await fs.appendFile(this.filePath, dataToWrite, "utf-8", (err) => {
       if (err) {
         console.error("Error writing to file:", err);
