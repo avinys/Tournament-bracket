@@ -3,4 +3,11 @@ B
 C
 D
 E
-F
+--SECTION--
+B
+C
+E
+--SECTION--
+C
+E
+--SECTION--

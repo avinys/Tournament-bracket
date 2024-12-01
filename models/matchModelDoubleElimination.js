@@ -3,11 +3,25 @@ const { PassThrough } = require("stream");
 
 const fs = require("fs").promises;
 
+async function deleteFile(filePath) {
+  try {
+    await fs.unlink(filePath);
+    console.log(`Deleted file: ${filePath}`);
+  } catch (err) {
+    if (err.code !== "ENOENT") {
+      console.error(`Error deleting file ${filePath}:`, err);
+    } else {
+      console.log(`File not found, nothing to delete: ${filePath}`);
+    }
+  }
+}
+
 class Match {
   constructor(date, group) {
     this.date = date;
     this.group = group;
     this.filePath = "./data/" + date + "-group-" + group + ".txt";
+    this.tempFilePath = "./data/temp/TEMP-" + date + "-group-" + group + ".txt";
     this.resultFilePath = "./data/" + date + "-group-" + group + "-results.txt";
     this.sections = [];
     this.currentSection = [];
@@ -23,13 +37,26 @@ class Match {
     // If alternatingPicker == false, execute matches top to bottom
     // If alternatingPicker == true, execute matches bottom to top
     this.alternatingPicker = false;
+
+    // Delete temp file, then save initialized state
+    this.initializeState();
+  }
+
+  async initializeState() {
+    try {
+      await deleteFile(this.tempFilePath);
+      await this.saveCurrentLosersAndIndexState();
+      //console.log("initializeState: ",this.alternatingPicker)
+    } catch (err) {
+      console.error("Error during state initialization:", err);
+    }
   }
 
   async loadSections() {
     try {
       const data = await fs.readFile(this.filePath, "utf-8");
       this.sections = data
-        .split(/\s*break\s*/)
+        .split("--SECTION--")
         .map((section) => section.trim())
         .map((section) =>
           section
@@ -44,6 +71,8 @@ class Match {
 
   async getParticipants() {
     await this.loadSections();
+    await this.loadCurrentLosersAndIndexState();
+    //console.log("getParticipants: ",this.alternatingPicker)
     this.roundEnded = false;
     if (this.sections.length == 0) {
       this.currentSection = [];
@@ -60,9 +89,12 @@ class Match {
 
   async getMatch() {
     await this.loadSections();
+    await this.loadCurrentLosersAndIndexState();
     console.log("Sections in getMatch: ", this.sections);
     console.log("Losers in getMatch: ", this.losers);
     console.log("getLoser in getMatch: ", this.getLoser);
+    console.log("alternatingPicker in getMatch: ", this.getLoser);
+    console.log("currentSection in getMatch: ", this.currentSection);
     if (this.results[0] != "") return this.results;
 
     // Add a new section if the round is over
@@ -99,7 +131,7 @@ class Match {
         //this.getLoser = false;
         await this.matchResult(this.currentMatchIndex);
         return [
-          this.currentSection[this.currentMatchIndex],
+          this.currentSection[this.currentMatchIndex - 2],
           this.currentMatchIndex,
         ];
       } else if (this.currentSection.length != 0) {
@@ -200,9 +232,10 @@ class Match {
         }
       }
       this.currentMatchIndex += 2;
-      this.writeSectionsToFile();
+      await this.writeSectionsToFile();
+
     }
-    
+
     if (this.losers.length == 2) this.getLoser = true;
     else if (this.losers.length > 2)
       if (this.getLoser == true) this.getLoser = false;
@@ -214,6 +247,7 @@ class Match {
     console.log("Losers in matchResult: ", this.losers);
     console.log("getLoser in matchResult: ", this.getLoser);
     console.log("place3Sent in matchResult: ", this.place3Sent);
+    await this.saveCurrentLosersAndIndexState();
   }
 
   async matchResult3Place(winnerIndex) {
@@ -240,38 +274,39 @@ class Match {
     }
 
     console.log("matchResult3Place. Sections: ", this.sections);
-    this.writeSectionsToFile();
+    await this.writeSectionsToFile();
+    await this.saveCurrentLosersAndIndexState();
   }
 
-  matchResultLoserBracket() {}
+  // matchResultLoserBracket() {}
 
-  async writeWinnerToFile() {
-    let lastSection = this.sections[this.sections.length - 1];
-    let dataToWrite = `${lastSection[lastSection.length - 1]}\n`;
-    try {
-      await fs.appendFile(this.filePath, dataToWrite, "utf-8");
-      //this.currentMatchIndex += 2;
-      if (this.currentMatchIndex == this.currentSection.length - 1) {
-        await fs.appendFile(
-          this.filePath,
-          this.currentSection[this.currentMatchIndex] + "\n",
-          "utf-8"
-        );
-        this.sections[this.sections.length - 1].push(
-          this.currentSection[this.currentMatchIndex]
-        );
-      }
-    } catch (err) {
-      console.error("Error writing to file:", err);
-    }
-    //await this.loadSections();
-  }
+  // async writeWinnerToFile() {
+  //   let lastSection = this.sections[this.sections.length - 1];
+  //   let dataToWrite = `${lastSection[lastSection.length - 1]}\n`;
+  //   try {
+  //     await fs.appendFile(this.filePath, dataToWrite, "utf-8");
+  //     //this.currentMatchIndex += 2;
+  //     if (this.currentMatchIndex == this.currentSection.length - 1) {
+  //       await fs.appendFile(
+  //         this.filePath,
+  //         this.currentSection[this.currentMatchIndex] + "\n",
+  //         "utf-8"
+  //       );
+  //       this.sections[this.sections.length - 1].push(
+  //         this.currentSection[this.currentMatchIndex]
+  //       );
+  //     }
+  //   } catch (err) {
+  //     console.error("Error writing to file:", err);
+  //   }
+  //   //await this.loadSections();
+  // }
 
   async writeSectionsToFile() {
     try {
       const customData = this.sections
         .map((innerArray) => innerArray.join("\n"))
-        .join("\n\nbreak\n\n");
+        .join("\n--SECTION--\n");
       let resultData = "";
       for (let i = 0; i < this.results.length; i++) {
         resultData += `${i + 1} place: ${this.results[i]}\n`;
@@ -283,12 +318,100 @@ class Match {
     }
   }
 
+  async loadCurrentLosersAndIndexState() {
+    try {
+      // Read and clean up the file
+      const tempData = await fs.readFile(this.tempFilePath, "utf-8");
+      //console.log("Raw file content:", tempData);
+      
+      const tempLines = tempData
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line !== ""); // Remove empty lines
+  
+      //console.log("Loaded state: ", tempLines);
+  
+      // Load losers from the first line
+      if (tempLines.length > 0) {
+        this.losers =
+          tempLines[0] === "EMPTY"
+            ? []
+            : tempLines[0].split(",").filter((loser) => loser.trim() !== "");
+      }
+  
+      // Load other data from the last line
+      if (tempLines.length > 1) {
+        const parsedData = tempLines[tempLines.length - 1].split(",").map((value) => {
+          if (value === "true" || value === "false") return value === "true"; // Handle booleans
+          if (!isNaN(value)) return Number(value); // Handle numbers
+          return value;
+        });
+  
+        const [
+          currentMatchIndex = 0,
+          roundEnded = false,
+          finalFlag = false,
+          place3Done = false,
+          place3Sent = false,
+          getLoser = false,
+          alternatingPicker = false,
+        ] = parsedData;
+  
+        this.currentMatchIndex = currentMatchIndex;
+        this.roundEnded = roundEnded;
+        this.finalFlag = finalFlag;
+        this.place3Done = place3Done;
+        this.place3Sent = place3Sent;
+        this.getLoser = getLoser;
+        this.alternatingPicker = alternatingPicker;
+      }
+  
+      // Load results from the result file
+      const resultData = await fs.readFile(this.resultFilePath, "utf-8");
+      this.results = resultData
+        .split("\n")
+        .filter((line) => line.trim() !== "")
+        .map((line) => line.split(": ")[1]); // Extract only the result part after 'place: '
+  
+    } catch (err) {
+      console.error("Error reading from file:", err);
+    }
+  }
+
+  async saveCurrentLosersAndIndexState() {
+    try {
+      const losers = this.losers.length > 0 ? this.losers.join(",") : "EMPTY";
+      const tempFileData = `${losers}\n${[
+        this.currentMatchIndex || 0,
+        this.roundEnded || true,
+        this.finalFlag || false,
+        this.place3Done || false,
+        this.place3Sent || false,
+        this.getLoser || false,
+        this.alternatingPicker || false,
+      ].join(",")}\n`;
+  
+      let resultData = "";
+      for (let i = 0; i < this.results.length; i++) {
+        resultData += `${i + 1} place: ${this.results[i]}\n`;
+      }
+  
+      await Promise.all([
+        fs.writeFile(this.tempFilePath, tempFileData),
+        fs.writeFile(this.resultFilePath, resultData),
+      ]);
+    } catch (err) {
+      console.error("Error writing to file:", err);
+    }
+  }
+  
+
   async createNewSection() {
     if (this.sections[this.sections.length - 1].length === 0) return;
     this.currentSection = this.sections[this.sections.length - 1];
     this.sections.push([]);
     this.currentMatchIndex = 0;
-    let dataToWrite = "\nbreak\n\n";
+    let dataToWrite = "\n--SECTION--\n";
     await fs.appendFile(this.filePath, dataToWrite, "utf-8", (err) => {
       if (err) {
         console.error("Error writing to file:", err);
@@ -297,6 +420,7 @@ class Match {
         this.roundEnded = false;
       }
     });
+    await this.saveCurrentLosersAndIndexState();
   }
 
   updateSections() {

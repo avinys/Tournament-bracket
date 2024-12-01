@@ -44,7 +44,7 @@ async function postWinner(index) {
     })
     .catch((error) => {
       console.error("There was a problem with the fetch operation:", error);
-    });s
+    });
 }
 
 function akaButtonParticipantFunction() {
