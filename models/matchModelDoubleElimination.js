@@ -104,6 +104,7 @@ class Match {
       if (this.alternatingPicker == true) this.alternatingPicker = false;
       else this.alternatingPicker = true;
     }
+    await this.saveCurrentLosersAndIndexState();
     // If down to 2 participants, execute small and big final mode
     if (this.currentSection.length == 2) {
       return this.getMatchFinal();
@@ -176,6 +177,13 @@ class Match {
         //this.currentSection.push(this.losers[this.losers.length - 1]);
         //this.currentSection.push(this.losers[this.losers.length - 2]);
         this.place3Sent = true;
+
+        // Critical case if bracket consists of 3 participants
+        if(this.sections[0].length == 3) {
+          this.matchResult3Place(0)
+          return this.getMatchFinal()
+        }
+
         return [
           [
             this.losers[this.losers.length - 1],
@@ -216,6 +224,18 @@ class Match {
           this.currentSection[winnerIndex]
         );
       }
+
+        // Edge case for when there are 3 participants in a group
+        if(this.sections[0].length == 3 && this.losers.length == 0) {
+          if(winnerIndex == this.currentMatchIndex)
+            this.sections[this.sections.length - 1].push(
+              this.currentSection[winnerIndex + 1]
+            );
+          else
+            this.sections[this.sections.length - 1].push(
+              this.currentSection[winnerIndex]
+            );
+        }
 
       // Saving losers
       if (this.currentSection.length - 1 != this.currentMatchIndex) {
@@ -270,6 +290,11 @@ class Match {
         this.results[2] = this.losers[this.losers.length - 2];
         this.results[3] = this.losers[this.losers.length - 1];
       }
+
+      // Edge case if only 3 participants
+      if(this.sections[0].length == 3)
+        this.results[3] = ""
+
       this.place3Done = true;
     }
 
