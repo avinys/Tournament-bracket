@@ -3,12 +3,26 @@ const { PassThrough } = require("stream");
 
 const fs = require("fs").promises;
 
+async function deleteFile(filePath) {
+  try {
+    await fs.unlink(filePath);
+    console.log(`Deleted file: ${filePath}`);
+  } catch (err) {
+    if (err.code !== "ENOENT") {
+      console.error(`Error deleting file ${filePath}:`, err);
+    } else {
+      console.log(`File not found, nothing to delete: ${filePath}`);
+    }
+  }
+}
+
 class Match {
   constructor(date, group) {
     this.date = date;
     this.group = group;
     this.filePath = "./data/" + date + "-group-" + group + ".txt";
     this.resultFilePath = "./data/" + date + "-group-" + group + "-results.txt";
+    this.tempFilePath = "./data/temp/TEMP-" + date + "-group-" + group + ".txt";
     this.sections = [];
     this.currentSection = [];
     this.currentMatchIndex = 0;
@@ -22,6 +36,18 @@ class Match {
     // If alternatingPicker == false, execute matches top to bottom
     // If alternatingPicker == true, execute matches bottom to top
     this.alternatingPicker = false;
+
+    this.initializeState();
+  }
+
+  async initializeState() {
+    try {
+      await deleteFile(this.tempFilePath);
+      await this.saveCurrentLosersAndIndexState();
+      //console.log("initializeState: ",this.alternatingPicker)
+    } catch (err) {
+      console.error("Error during state initialization:", err);
+    }
   }
 
   async loadSections() {
@@ -247,6 +273,93 @@ class Match {
         await fs.writeFile(this.resultFilePath, resultData);
     }catch(err){
         console.error('Error writing to file:', err);
+    }
+  }
+
+  async loadCurrentLosersAndIndexState() {
+    try {
+      // Read and clean up the file
+      const tempData = await fs.readFile(this.tempFilePath, "utf-8");
+      //console.log("Raw file content:", tempData);
+      
+      const tempLines = tempData
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line !== ""); // Remove empty lines
+  
+      //console.log("Loaded state: ", tempLines);
+  
+      // Load losers from the first line
+      if (tempLines.length > 0) {
+        this.losers =
+          tempLines[0] === "EMPTY"
+            ? []
+            : tempLines[0].split(",").filter((loser) => loser.trim() !== "");
+      }
+  
+      // Load other data from the last line
+      if (tempLines.length > 1) {
+        const parsedData = tempLines[tempLines.length - 1].split(",").map((value) => {
+          if (value === "true" || value === "false") return value === "true"; // Handle booleans
+          if (!isNaN(value)) return Number(value); // Handle numbers
+          return value;
+        });
+  
+        const [
+          currentMatchIndex = 0,
+          roundEnded = false,
+          finalFlag = false,
+          place3Done = false,
+          place3Sent = false,
+          getLoser = false,
+          alternatingPicker = false,
+        ] = parsedData;
+  
+        this.currentMatchIndex = currentMatchIndex;
+        this.roundEnded = roundEnded;
+        this.finalFlag = finalFlag;
+        this.place3Done = place3Done;
+        this.place3Sent = place3Sent;
+        this.getLoser = getLoser;
+        this.alternatingPicker = alternatingPicker;
+      }
+  
+      // Load results from the result file
+      const resultData = await fs.readFile(this.resultFilePath, "utf-8");
+      this.results = resultData
+        .split("\n")
+        .filter((line) => line.trim() !== "")
+        .map((line) => line.split(": ")[1]); // Extract only the result part after 'place: '
+  
+    } catch (err) {
+      console.error("Error reading from file:", err);
+    }
+  }
+
+  async saveCurrentLosersAndIndexState() {
+    try {
+      const losers = this.losers.length > 0 ? this.losers.join(",") : "EMPTY";
+      const tempFileData = `${losers}\n${[
+        this.currentMatchIndex || 0,
+        this.roundEnded || true,
+        this.finalFlag || false,
+        this.place3Done || false,
+        this.place3Sent || false,
+        this.getLoser || false,
+        this.alternatingPicker || false,
+      ].join(",")}\n`;
+  
+      let resultData = "";
+      for (let i = 0; i < this.results.length; i++) {
+        resultData += `${i + 1} place: ${this.results[i]}\n`;
+      }
+  
+      await Promise.all([
+        fs.writeFile(this.tempFilePath, tempFileData),
+        fs.writeFile(this.resultFilePath, resultData),
+      ]);
+    } catch (err) {
+      console.error("Error writing to file:", err);
     }
   }
 

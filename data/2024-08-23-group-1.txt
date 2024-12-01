@@ -1,11 +1,13 @@
 A
 B
 C
+D
+E
 --SECTION--
 A
-B
-C
+D
+E
 --SECTION--
 A
-B
+E
 --SECTION--
