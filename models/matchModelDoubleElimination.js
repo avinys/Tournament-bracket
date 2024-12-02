@@ -186,8 +186,8 @@ class Match {
 
         return [
           [
-            this.losers[this.losers.length - 1],
             this.losers[this.losers.length - 2],
+            this.losers[this.losers.length - 1],
           ],
           [0, 1],
         ];
@@ -284,11 +284,11 @@ class Match {
       //await this.writeWinnerToFile(winnerIndex);
     } else {
       if (winnerIndex == 0) {
-        this.results[2] = this.losers[this.losers.length - 1];
-        this.results[3] = this.losers[this.losers.length - 2];
-      } else if (winnerIndex == 1) {
         this.results[2] = this.losers[this.losers.length - 2];
         this.results[3] = this.losers[this.losers.length - 1];
+      } else if (winnerIndex == 1) {
+        this.results[2] = this.losers[this.losers.length - 1];
+        this.results[3] = this.losers[this.losers.length - 2];
       }
 
       // Edge case if only 3 participants

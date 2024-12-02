@@ -8,6 +8,7 @@ const router = express.Router();
 
 router.get('/bracket-single-elimination', singleEliminationMatchController.getMatches);
 router.get('/bracket-single-elimination/next', singleEliminationMatchController.getNextMatch)
+router.get('/bracket-single-elimination/next-up', singleEliminationMatchController.getNextUp)
 router.post('/bracket-single-elimination/next', singleEliminationMatchController.postMatch)
 
 router.get('/bracket-double-elimination', doubleEliminationMatchController.getMatches);

@@ -41,6 +41,16 @@ async function getNextMatch(req, res) {
     res.json(responseData);
 }
 
+async function getNextUp(req, res) {
+    let data = await match.getNextUp();
+    let responseData = {
+        message: "Next up data received succesfully!",
+        data: data
+    };
+    console.log("Client data (getNextUp - singleEliminationController): ", data);
+    res.json(responseData);
+}
+
 async function postMatch(req, res) {
     let winner = req.body.winnerIndex;
 
@@ -67,5 +77,6 @@ async function postMatch(req, res) {
 module.exports = {
     getMatches: getMatches,
     getNextMatch: getNextMatch,
-    postMatch: postMatch
+    postMatch: postMatch,
+    getNextUp: getNextUp
 }

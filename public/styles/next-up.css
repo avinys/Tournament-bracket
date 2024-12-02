@@ -1,0 +1,20 @@
+#next-up-div {
+    height: 100px;
+    width: 400px;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    margin: 20px;
+    justify-items: center;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    flex-direction: column;
+    z-index: 1002;
+}
+
+#next-up-content {
+    width: 80%; 
+    text-align: left;  
+}
