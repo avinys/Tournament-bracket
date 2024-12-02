@@ -1,7 +1,13 @@
 A
 B
 C
+D
+E
 --SECTION--
-A
-C
+B
+D
+E
+--SECTION--
+B
+D
 --SECTION--

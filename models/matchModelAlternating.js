@@ -419,7 +419,7 @@ class Match {
       tempSection = [...this.sections[this.sections.length - 1]];
       if (alternating == true) {
         tempSection.unshift("##");
-        tempSection.unshift(this.currentSection[tempMatchIndex]);
+        tempSection.unshift(this.currentSection[0]);
         alternating = false;
         tempMatchIndex = 0;
       } else {
@@ -458,8 +458,6 @@ class Match {
       if (alternating == true) alternating = false;
       else alternating = true;
     }
-
-    // DOESNT work when after current match there will be moving of odd element
 
     console.log("getNextUp model method - after: ");
     console.log("alternating: ", alternating);

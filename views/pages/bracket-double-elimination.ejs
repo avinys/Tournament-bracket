@@ -3,15 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <link rel="stylesheet" href="/styles/overlay.css" />
-    <input rel="stylesheet" href="/styles/bracket.css"/>
+    <link rel="stylesheet" href="/styles/bracket.css"/>
+    <link rel="stylesheet" href="/styles/next-up.css"/>
+
     <script src="/scripts/bracket-double-elimination.js" defer></script>
     <script src="/scripts/overlay.js" defer></script>
+
     <title><%= date %> Group <%= group %></title>
   </head>
   <body>
     <%- include('../partials/bracket-result-overlay.ejs') %>
     <%- include('../partials/match-overlay.ejs') %>
+    <%- include('../partials/next-up.ejs') %>
     <h2 id="bracket-name">List of participants for <%= date %> group <%= group %>:</h2>
     <div id="main-bracket">
         <% for(let participants of sections) { %>

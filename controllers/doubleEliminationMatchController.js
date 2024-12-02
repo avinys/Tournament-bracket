@@ -69,8 +69,19 @@ async function postMatch(req, res) {
     return res.json(responseData)
 }
 
+async function getNextUp(req, res) {
+    let data = await match.getNextUp();
+    let responseData = {
+        message: "Next up data received succesfully!",
+        data: data
+    };
+    console.log("Client data (getNextUp - doubleEliminationController): ", data);
+    res.json(responseData);
+}
+
 module.exports = {
     getMatches: getMatches,
     getNextMatch: getNextMatch,
-    postMatch: postMatch
+    postMatch: postMatch,
+    getNextUp: getNextUp,
 }

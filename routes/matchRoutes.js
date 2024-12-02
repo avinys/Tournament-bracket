@@ -13,6 +13,7 @@ router.post('/bracket-single-elimination/next', singleEliminationMatchController
 
 router.get('/bracket-double-elimination', doubleEliminationMatchController.getMatches);
 router.get('/bracket-double-elimination/next', doubleEliminationMatchController.getNextMatch)
+router.get('/bracket-double-elimination/next-up', doubleEliminationMatchController.getNextUp)
 router.post('/bracket-double-elimination/next', doubleEliminationMatchController.postMatch)
 
 router.get('/bracket-kata-points', kataPointsMatchController.getMatchesKataPoints);
