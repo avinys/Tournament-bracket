@@ -35,7 +35,7 @@ table {
     height: 50px;
   }
   /* For simple approach */
-  td {
+  #bracket td {
     border: 1px solid black;
   }
 
@@ -51,6 +51,18 @@ table {
     font-size: 1.5em;
     text-align: left;
     margin-bottom: 10px;
+  }
+
+  #lower-bracket {
+    border-style: none;
+  }
+
+  #lower-bracket td {
+    border-style: none;
+  }
+
+  #lower-bracket td.active {
+    border: 1px solid black;
   }
 
   

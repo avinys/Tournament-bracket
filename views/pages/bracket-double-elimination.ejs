@@ -9,8 +9,8 @@
     <link rel="stylesheet" href="/styles/next-up.css" />
 
     <script src="/scripts/overlay.js" defer></script>
+    <script src="/scripts/bracket-render.js" defer></script>
     <script src="/scripts/bracket-double-elimination.js" defer></script>
-    <script src="/scripts/mainBracketRender.js" defer></script>
 
     <title><%= date %> Group <%= group %></title>
   </head>
@@ -21,15 +21,7 @@
     <h2 id="bracket-name">
       List of participants for <%= date %> group <%= group %>:
     </h2>
-    <div id="main-bracket">
-      <% for(let participants of sections) { %>
-      <ul>
-        <% for (let participant of participants) { %>
-        <li><%= participant %></li>
-        <% } %>
-      </ul>
-      <% } %>
-    </div>
+
 
     <table id="bracket">
       <thead>
@@ -42,6 +34,13 @@
       </tbody>
     </table>
 
+    <h3>Lower bracket</h3>
+    <table id="lower-bracket">
+      <tbody>
+        <!-- Lower bracket cells are dynamically generated here -->
+      </tbody>
+    </table>
+
     <div id="bracket-actions">
       <button id="start-match-button">Start matchup</button>
     </div>
@@ -49,6 +48,8 @@
     <script>
       const sections = <%- JSON.stringify(sections) %>;
       console.log("Sections:", sections);
+      const losers = <%- JSON.stringify(losers) %>;
+      console.log("Losers: ", losers);
     </script>
   </body>
 </html>

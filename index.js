@@ -10,12 +10,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
 //Routes
-const tournamentRoutes = require('./routes/tournamentRoutes');
 const matchRoutes = require('./routes/matchRoutes');
 const generalRoutes = require('./routes/generalRoutes');
 
 app.use("/", generalRoutes);
-app.use("/", tournamentRoutes)
 app.use("/", matchRoutes);
 
 const PORT = process.env.PORT || 3000;

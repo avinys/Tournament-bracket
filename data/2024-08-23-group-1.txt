@@ -3,11 +3,15 @@ B
 C
 D
 E
+F
+G
+H
 --SECTION--
 A
 D
-E
+F
+H
 --SECTION--
-A
 D
+F
 --SECTION--
