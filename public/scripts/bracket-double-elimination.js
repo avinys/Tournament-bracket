@@ -43,6 +43,7 @@ async function postWinner(index) {
       if (data["isEnd"] == true) {
         startMatchBtn.textContent = "View Results";
       }
+      generateBracket(data["sections"]);
     })
     .catch((error) => {
       console.error("There was a problem with the fetch operation:", error);
@@ -169,4 +170,5 @@ function fillResultOverlay(result) {
   bracketResultOverlayContent.appendChild(olElement);
 }
 
+document.addEventListener("DOMContentLoaded", () => generateBracket(sections));
 startMatchBtn.addEventListener("click", startMatch);

@@ -1,11 +1,10 @@
-*{
+/* *{
     border-style: solid;
     border-color: black;
-    border-width: 2px;;
-    /* padding: 10px; */
+    border-width: 2px;
     margin: 0;
     padding: 0;
-}
+} */
 
 /* #bracket-result-overlay {
     position: fixed;

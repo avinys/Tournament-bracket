@@ -215,7 +215,7 @@ class Match {
       }
       this.currentMatchIndex += 2;
       console.log("Sections in matchResult(model): ", this.sections);
-      this.writeSectionsToFile();
+      await this.writeSectionsToFile();
 
       //   if (winnerIndex == this.currentMatchIndex) {
       //     if (this.currentSection.length - 1 != winnerIndex)
@@ -232,10 +232,14 @@ class Match {
   async matchResult3Place(winnerIndex) {
     if (this.place3Done) {
       if (winnerIndex == 0) {
+        // this.sections[this.sections.length - 1].push(this.currentSection[0]);
+
         this.results[0] = this.currentSection[0];
         this.results[1] = this.currentSection[1];
         this.finalFlag = true;
       } else if (winnerIndex == 1) {
+        // this.sections[this.sections.length - 1].push(this.currentSection[1]);
+
         this.results[0] = this.currentSection[1];
         this.results[1] = this.currentSection[0];
         this.finalFlag = true;
@@ -252,7 +256,7 @@ class Match {
     }
     this.place3Done = true;
     console.log("matchResult3Place(model). Sections: ", this.sections);
-    this.writeSectionsToFile();
+    await this.writeSectionsToFile();
   }
 
   async writeWinnerToFile() {

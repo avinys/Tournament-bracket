@@ -16,7 +16,8 @@ const group = document
   .textContent.split(" ")[6]
   .split(":")[0];
 
-const nextUpContentDiv = document.getElementById("next-up-content")
+const nextUpContentDiv = document.getElementById("next-up-content");
+const bracketContainer = document.getElementById("bracket-container");
 
 let addEventListenerToParticipantsFlag = false;
 
@@ -43,6 +44,7 @@ async function postWinner(index) {
       if (data["isEnd"] == true) {
         startMatchBtn.textContent = "View Results";
       }
+      generateBracket(data["sections"]);
     })
     .catch((error) => {
       console.error("There was a problem with the fetch operation:", error);
@@ -104,7 +106,7 @@ async function startMatch() {
     .catch((error) => {
       console.error("There was a problem with the fetch operation:", error);
     });
-    getNextUp()
+  getNextUp();
 }
 
 async function getNextUp() {
@@ -121,7 +123,7 @@ async function getNextUp() {
       return response.json();
     })
     .then((data) => {
-      fillNextUp(data["data"]);  
+      fillNextUp(data["data"]);
     })
     .catch((error) => {
       console.error("There was a problem with the fetch operation:", error);
@@ -132,26 +134,19 @@ function fillNextUp(data) {
   let header = "<h3>Next up:</h3>";
   let AKA = "<p><b>AKA: </b>";
   let SHIRO = "<p><b>SHIRO: </b>";
-  if (data == null){
+  if (data == null) {
     nextUpContentDiv.innerHTML = "<h3>No more upcomming fights</h3>";
-  } else if (data == "&&")
-    return; 
+  } else if (data == "&&") return;
   else {
-    if(data[0] != "##" && data[0] != "!!")
-      AKA += data[0] + "</p>";
-    else if (data[0] == "##")
-      AKA += "***Winner of current fight***" + "</p>";
-    else
-      AKA += "***Loser of current fight***" + "</p>";
+    if (data[0] != "##" && data[0] != "!!") AKA += data[0] + "</p>";
+    else if (data[0] == "##") AKA += "***Winner of current fight***" + "</p>";
+    else AKA += "***Loser of current fight***" + "</p>";
 
-    if(data[1] != "##" && data[1] != "!!")
-      SHIRO += data[1] + "</p>"
-    else if (data[1] == "##")
-      SHIRO += "***Winner of current fight***" + "</p>";
-    else
-      SHIRO += "***Loser of current fight***" + "</p>";
+    if (data[1] != "##" && data[1] != "!!") SHIRO += data[1] + "</p>";
+    else if (data[1] == "##") SHIRO += "***Winner of current fight***" + "</p>";
+    else SHIRO += "***Loser of current fight***" + "</p>";
 
-      nextUpContentDiv.innerHTML = `
+    nextUpContentDiv.innerHTML = `
       ${header}
       ${AKA}
       ${SHIRO}
@@ -177,4 +172,7 @@ function fillResultOverlay(result) {
   bracketResultOverlayContent.appendChild(olElement);
 }
 
+
+
+document.addEventListener("DOMContentLoaded", () => generateBracket(sections));
 startMatchBtn.addEventListener("click", startMatch);

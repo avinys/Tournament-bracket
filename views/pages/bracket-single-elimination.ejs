@@ -5,21 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <link rel="stylesheet" href="/styles/overlay.css" />
-    <link rel="stylesheet" href="/styles/bracket.css"/>
-    <link rel="stylesheet" href="/styles/next-up.css"/>
+    <link rel="stylesheet" href="/styles/bracket.css" />
+    <link rel="stylesheet" href="/styles/next-up.css" />
 
-    <script src="/scripts/bracket-single-elimination.js" defer></script>
     <script src="/scripts/overlay.js" defer></script>
+    <script src="/scripts/bracket-single-elimination.js" defer></script>
+    <script src="/scripts/mainBracketRender.js" defer></script>
 
     <title><%= date %> Group <%= group %></title>
   </head>
   <body>
-    <%- include('../partials/bracket-result-overlay.ejs') %>
-    <%- include('../partials/match-overlay.ejs') %>
-    <%- include('../partials/next-up.ejs') %>
-    <h2 id="bracket-name">List of participants for <%= date %> group <%= group %>:</h2>
+    <%- include('../partials/bracket-result-overlay.ejs') %> <%-
+    include('../partials/match-overlay.ejs') %> <%-
+    include('../partials/next-up.ejs') %>
+    <h2 id="bracket-name">
+      List of participants for <%= date %> group <%= group %>:
+    </h2>
     <div id="main-bracket">
-        <% for(let participants of sections) { %>
+      <% for(let participants of sections) { %>
       <ul>
         <% for (let participant of participants) { %>
         <li><%= participant %></li>
@@ -27,8 +30,27 @@
       </ul>
       <% } %>
     </div>
+
+    <table id="bracket">
+      <thead>
+        <tr id="round-header">
+          <!-- Round headers will be dynamically inserted -->
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Match rows will be dynamically inserted -->
+      </tbody>
+    </table>
+
     <div id="bracket-actions">
       <button id="start-match-button">Start matchup</button>
     </div>
+
+    <script>
+      const sections = <%- JSON.stringify(sections) %>;
+      console.log("Sections:", sections);
+    </script>
+
+
   </body>
 </html>
