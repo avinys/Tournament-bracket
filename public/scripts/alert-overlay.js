@@ -1,15 +1,24 @@
 //const alertOverlay =  document.getElementById("alert-overlay");
-const alertOverlayButton = document.querySelector("#alert-overlay-contents button");
+//const alertOverlayButton = document.querySelector("#alert-overlay-contents button");
 //const alertOverlayText = document.querySelector("#alert-overlay-contents p");
 
+function showAlert(message) {
+    alertMessageDiv.textContent = message;
+    alertOverlay.classList.add("active");
+}
+
 function closeAlertDiv() {
-    if (alertOverlay.classList.contains("active"))
-        alertOverlayText.textContent = 
+    if (document.getElementById("alert-overlay").classList.contains("active"))
+        document.querySelector("#alert-overlay-contents p").textContent = 
             "Unknown error occured. Please try to reload the page." + 
             " If error still persists, please contact the system administrator";
 
-            alertOverlay.classList.remove("active");
+            document.getElementById("alert-overlay").classList.remove("active");
 }
 
-alertOverlayButton.addEventListener("click", closeAlertDiv);
-alertOverlay.addEventListener("click", closeAlertDiv);
+
+document.querySelector("#alert-overlay-contents button").addEventListener("click", closeAlertDiv);
+document.getElementById("alert-overlay").addEventListener("click", closeAlertDiv);
+document.getElementById("alert-overlay-contents").addEventListener("click", (event) => {
+    event.stopPropagation(); // Prevent the event from bubbling to the overlay
+});

@@ -15,7 +15,7 @@ async function getMatches(req, res) {
         return res.status(400).send("Missing required query parameters: date and group");
     }
 
-    if(match == undefined) 
+    if(match == undefined || match.date != date || match.group != group) 
         match = new Match(date, group)
     const sections = await match.getParticipants()
     const losers = [...match.losers];

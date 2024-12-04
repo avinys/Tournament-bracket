@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="/styles/view-groups.css" />
+
+    <title>View groups</title>
+  </head>
+  <body>
+    <h3>Previously uploaded groups:</h3>
+    <table>
+      <thead>
+        <th>Group Name</th>
+        <th>Date</th>
+        <th>Group Number</th>
+        <th>Match Type</th>
+        <th>Actions</th>
+      </thead>
+      <tbody>
+        <% for (let group of groups) { %>
+            <tr>
+                <td><%= group[3] %></td>
+                <td><%= group[0] %> </td>
+                <td><%= group[1] %></td>
+                <td><%= group[2] %></td>
+                <td>
+                  <a href="/<%= group[2] + "?date=" + group[0] + "&group=" + group[1]%>">View</a>
+                  <!-- <a href="/data/delete-group<%= "?date=" + group[0] + "&group=" + group[1]%>">Delete</a> -->
+                </td>
+            </tr>
+        <% } %>
+      </tbody>
+    </table>
+    <a href="/">Back</a>
+  </body>
+</html>

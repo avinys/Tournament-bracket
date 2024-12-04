@@ -10,8 +10,8 @@ H
 A
 D
 F
-H
+G
 --SECTION--
-D
-F
+A
+G
 --SECTION--

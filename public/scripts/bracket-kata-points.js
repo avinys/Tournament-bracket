@@ -70,8 +70,7 @@ async function postScore() {
   console.log("Scores in postScore() script: ", scores);
 
   if (scores.length < 3) {
-    alertOverlayText.textContent = "Please add points for at least 3 judges";
-    alertOverlay.classList.add("active");
+    showAlert("Please add points for at least 3 judges");
     return;
   } else {
     for (let input of inputs) {
