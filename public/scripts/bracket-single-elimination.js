@@ -175,9 +175,11 @@ function fillResultOverlay(result) {
   });
 
   bracketResultOverlayContent.appendChild(olElement);
+  const close = document.createElement("button")
+  close.textContent = "Close"
+  close.addEventListener("click", removeOverlay);
+  bracketResultOverlayContent.appendChild(close);
 }
-
-
 
 document.addEventListener("DOMContentLoaded", () =>  {
   generateBracket(sections, results)

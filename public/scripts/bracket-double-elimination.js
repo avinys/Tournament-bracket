@@ -174,6 +174,9 @@ function fillResultOverlay(result) {
   });
 
   bracketResultOverlayContent.appendChild(olElement);
+  const close = document.createElement("button")
+  close.textContent = "Close"
+  bracketResultOverlayContent.appendChild(close);
 }
 
 document.addEventListener("DOMContentLoaded", () => {

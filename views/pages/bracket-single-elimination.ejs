@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <link rel="stylesheet" href="/styles/general.css">
     <link rel="stylesheet" href="/styles/overlay.css" />
     <link rel="stylesheet" href="/styles/bracket.css" />
     <link rel="stylesheet" href="/styles/next-up.css" />
@@ -23,7 +24,7 @@
     <h2 id="bracket-name">
       List of participants for <%= date %> group <%= group %>:
     </h2>
-    <div id="main-bracket">
+    <!-- <div id="main-bracket">
       <% for(let participants of sections) { %>
       <ul>
         <% for (let participant of participants) { %>
@@ -31,7 +32,7 @@
         <% } %>
       </ul>
       <% } %>
-    </div>
+    </div> -->
 
     <table id="bracket">
       <thead>
@@ -45,10 +46,10 @@
     </table>
 
     <div id="bracket-actions">
-      <button id="start-match-button">Start matchup</button>
+      <button class="btn" id="start-match-button">Start matchup</button>
+    <a  class="btn" href="/data/view-groups">Back to View Groups</a>
     </div>
 
-    <a href="/data/view-groups">Back to View Groups</a>
 
     <script>
       const sections = <%- JSON.stringify(sections) %>;

@@ -10,7 +10,7 @@ let group;
 async function getMatchesKataPoints(req, res) {
     date = req.query.date;
     group = req.query.group;
-    if(match == undefined)
+    if(match == undefined || match.date != date || match.group != group)
         match = new Match(date, group);
     const rounds = await match.getParticipants();
 
@@ -32,7 +32,7 @@ async function getNextMatchKataPoints(req, res) {
         responseData["message"] += " Bracket Ended.";
         responseData["isEnd"] = true;
     }
-    console.log("Client Data getNextMatch controller: ", responseData);
+    //console.log("Client Data getNextMatch controller: ", responseData);
     res.json(responseData);
 }
 
@@ -42,7 +42,7 @@ async function postMatchKataPoints(req, res) {
         if(!isNaN(score))
             scores.push(score);
     }
-    console.log("Scores in postMatchKataPoints controller: ", scores)
+    //console.log("Scores in postMatchKataPoints controller: ", scores)
     const participants = await match.matchResult(scores);
 
     let responseData = {
@@ -52,7 +52,8 @@ async function postMatchKataPoints(req, res) {
         isFinal: false
     };
 
-    if(match.showFinalFlag == true) {
+    if(match.isFinal() == true) {
+        console.log("Kontroleryje pakeite i finala")
         responseData = {
             message: "Scores recorded succesfully! Final started!",
             participants: participants,
@@ -61,7 +62,7 @@ async function postMatchKataPoints(req, res) {
         }
     }
 
-    if(match.finalFlag == true) {
+    if(match.isEnd() == true) {
         responseData = {
             message: "Scores recorded succesfully! Competition ended!",
             participants: participants,

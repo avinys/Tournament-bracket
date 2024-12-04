@@ -37,7 +37,7 @@ async function startMatch() {
       return response.json(); // Parse the JSON from the response
     })
     .then((data) => {
-      console.log(data);
+      //console.log(data);
       if (data["isEnd"]) {
         startMatchBtn.textContent = "View Results";
         fillResultOverlay(data["receivedData"]);
@@ -46,7 +46,7 @@ async function startMatch() {
         if(finalNoticeDiv.classList.contains("active"))
           finalNoticeDiv.classList.remove("active");
       } else {
-        console.log("Data received:", data);
+        //console.log("Data received (startMatch):", data);
         overlayHeader.textContent = `Please input points for participant ${data["receivedData"].name}`;
         if (!overlay.classList.contains("active")) {
           document.body.style.overflow = "hidden";
@@ -67,12 +67,15 @@ async function postScore() {
     if (input.value != "") 
       scores.push(input.value);
   }
-  console.log("Scores in postScore() script: ", scores);
+  //console.log("Scores in postScore() script: ", scores);
 
   if (scores.length < 3) {
-    showAlert("Please add points for at least 3 judges");
+    showAlert("Please add points for at least 3 judges.");
     return;
-  } else {
+  } else if (scores.filter((score) => score > 9.9 || score < 0.0).length > 0) {
+    showAlert("All scores must be between 0 and 9.9, inclusive.");
+    return;
+  }else {
     for (let input of inputs) {
       input.value = ""
     }
@@ -92,15 +95,19 @@ async function postScore() {
       return response.json();
     })
     .then((data) => {
-      console.log("Received data: " + JSON.stringify(data));
+      console.log("Received data(postScore front): " + JSON.stringify(data));
       if (overlay.classList.contains("active"))
         overlay.classList.remove("active");
       if (bracketResultOverlay.classList.contains("active"))
         bracketResultOverlay.classList.remove("active");
 
+      if(data["participants"][data["participants"].length - 1].length <= 4 && data["isFinal"] != true)
+        location.reload()
+
       if(data["isFinal"] == true) {
         if (!finalNoticeDiv.classList.contains("active")) 
           finalNoticeDiv.classList.add("active");
+        //console.log("Pagautas isFinal ir pakeistas")
       }
 
       if (data["isEnd"] == true) {
@@ -119,63 +126,55 @@ function fillScoresInPage(scores) {
   const mainBracketDiv = document.getElementById("main-bracket");
   mainBracketDiv.innerHTML = ""; // Clear existing content
 
-  console.log("Scores in script: ", scores);
-
   for (let roundIndex = 0; roundIndex < scores.length; roundIndex++) {
     // Create and append the heading for the round
     const roundHeading = document.createElement("h3");
     roundHeading.textContent = `Round ${roundIndex + 1}`;
     mainBracketDiv.appendChild(roundHeading);
 
-    // Create the list for the round
-    const participantsUl = document.createElement("ul");
-    participantsUl.id = "participant-list-kata-points";
-    participantsUl.style.marginBottom = "20px";
+    // Create the table for the round
+    const table = document.createElement("table");
+    table.id = `participant-table-kata-points-round-${roundIndex}`;
 
-    // Add headers for the first round
-    if (roundIndex === 0) {
-      const headerLiElement = document.createElement("li");
-      const headerDivElement = document.createElement("div");
-      headerDivElement.id = "table-headers";
-      let headers = [
-        "Participant's name",
-        "Current round points",
-        "Points in total",
-      ];
-      for (let header of headers) {
-        const newHeaderElement = document.createElement("h3");
-        newHeaderElement.textContent = header;
-        headerDivElement.appendChild(newHeaderElement);
-      }
-      headerLiElement.appendChild(headerDivElement);
-      participantsUl.appendChild(headerLiElement);
+    // Create the table header
+    const thead = document.createElement("thead");
+    const headerRow = document.createElement("tr");
+    let headers = ["Participant's name", "Current round points", "Points in total"];
+    for (let header of headers) {
+      const th = document.createElement("th");
+      th.textContent = header;
+      headerRow.appendChild(th);
     }
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    // Create the table body
+    const tbody = document.createElement("tbody");
 
     // Add participants for the round
     for (let participant of scores[roundIndex]) {
-      const newLiElement = document.createElement("li");
-      const newDivElement = document.createElement("div");
+      const row = document.createElement("tr");
 
-      const pName = document.createElement("p");
-      pName.textContent = participant.name;
-      newDivElement.appendChild(pName);
+      const tdName = document.createElement("td");
+      tdName.textContent = participant.name;
+      row.appendChild(tdName);
 
-      const pRoundScore = document.createElement("p");
-      pRoundScore.textContent = participant.currentRoundPoints;
-      newDivElement.appendChild(pRoundScore);
+      const tdRoundScore = document.createElement("td");
+      tdRoundScore.textContent = participant.currentRoundPoints;
+      row.appendChild(tdRoundScore);
 
-      const pTotalScore = document.createElement("p");
-      pTotalScore.textContent = participant.totalPoints;
-      newDivElement.appendChild(pTotalScore);
+      const tdTotalScore = document.createElement("td");
+      tdTotalScore.textContent = participant.totalPoints;
+      row.appendChild(tdTotalScore);
 
-      newLiElement.appendChild(newDivElement);
-      participantsUl.appendChild(newLiElement);
+      tbody.appendChild(row);
     }
 
-    // Append the list for this round to the main bracket
-    mainBracketDiv.appendChild(participantsUl);
+    table.appendChild(tbody);
+    mainBracketDiv.appendChild(table);
   }
 }
+
 
 function fillResultOverlay(result) {
   bracketResultOverlayContent.innerHTML = "";
@@ -189,13 +188,17 @@ function fillResultOverlay(result) {
   result.forEach((result) => {
     if (result != "") {
       const liElement = document.createElement("li");
-      liElement.textContent = counter + ". " + result["name"] + " - " + result["totalPoints"];
+      liElement.textContent =  result["name"] + " - " + result["totalPoints"];
       olElement.appendChild(liElement);
       counter++;
     }
   });
 
   bracketResultOverlayContent.appendChild(olElement);
+  const close = document.createElement("button")
+  close.textContent = "Close"
+  close.addEventListener("click", removeOverlay);
+  bracketResultOverlayContent.appendChild(close);
 }
 
 startMatchBtn.addEventListener("click", startMatch);

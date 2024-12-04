@@ -47,14 +47,14 @@ class Match {
             if (this.participants.length > 1 && this.currentParticipants.length <= 4)
                 if (this.currentMatchIndex == this.currentParticipants.length - 1  && this.currentParticipants[this.currentMatchIndex].currentRoundPoints != 0) {
                     this.finalFlag = true
-                    console.log("Load sections, finalFlag: " + this.finalFlag)
+                    //console.log("Load sections, finalFlag: " + this.finalFlag)
                 }
                     
                 else
                     this.showFinalFlag = true;
 
 
-            console.log("Loaded participants: ", this.participants);
+            //console.log("Loaded participants: ", this.participants);
         } catch (err) {
             console.error("Error reading data from " + this.filePath + ": ", err);
         }
@@ -85,6 +85,7 @@ class Match {
     }
 
     async matchResult(scores) {
+        await this.loadSections()
         let roundScore = 0;
     
         if (scores.length > 3) {
@@ -93,7 +94,7 @@ class Match {
             scores.pop();
         }
     
-        console.log("Scores in matchResult model: ", scores);
+        //console.log("Scores in matchResult model: ", scores);
     
         for (let score of scores) roundScore += score;
     
@@ -106,9 +107,10 @@ class Match {
     
         if (this.currentMatchIndex === this.currentParticipants.length) {
             this.createNewSection();
+            return this.participants;
         }
     
-        console.log("Participants in matchResult: ", this.participants);
+        //console.log("Participants in matchResult: ", this.participants);
     
         await this.saveState();
     
@@ -180,6 +182,7 @@ class Match {
         else if (l > 4) {
             target = 4
             this.showFinalFlag == true;
+            console.log("Finalinis rezimas 1")
         }
         else {
             if (this.showFinalFlag) 
@@ -187,6 +190,7 @@ class Match {
 
             this.showFinalFlag = true;
             target = 4
+            console.log("Finalinis rezimas 2")
         }
 
         this.participants.push([]);
@@ -201,6 +205,14 @@ class Match {
             this.currentParticipants.push(p)
 
         await this.saveState()
+    }
+
+    isFinal() {
+        return this.showFinalFlag;
+    }
+
+    isEnd() {
+        return this.finalFlag;
     }
 
     updateSections() {

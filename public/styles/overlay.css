@@ -43,6 +43,7 @@
     position: fixed;
     width: 70%;
     height: 30%;
+    min-height: 350px;
     z-index: 1001;
     top:30%;
     margin: 15px 15%;
@@ -54,17 +55,28 @@
 }
 
 #kata-points-overlay {
-    height: 40%;
+    height: 500px;
+    top: 15%;
 }
 
 #bracket-result-overlay {
-    padding: 100px 50px;
+    padding: 10px 20px;
+    text-align: center;
+    min-height: 0;
+    height: 250px;
+    width: 70%;
+}
+
+#bracket-result-overlay li{
+    width: 30%;
+    margin: 0 auto;
 }
 
 #select-winner-overlay h2, #kata-points-overlay h2{
     padding: 15px;
     text-align: center;
-    margin-top: 50px;
+    margin-top: 10px;
+    margin-bottom: 0;
 }
 
 
@@ -160,7 +172,7 @@ button {
     flex-direction: column;
     background-color: beige;
     width: 60%;
-    padding: 50px;
+    padding: 10px;
     margin: 20px auto;
     border-radius: 9px;
     pointer-events: auto;
@@ -172,7 +184,9 @@ button {
     text-align: left;
 }
 #confirm-winner-overlay-contents button {
-    margin: 0 5% 0 95%;
+    width: 10%;
+    min-width: 85px;
+    margin-left:90%;
     cursor: pointer;
 }
 

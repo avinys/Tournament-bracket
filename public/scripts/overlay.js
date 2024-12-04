@@ -3,6 +3,7 @@ const selectOverlayContent = document.getElementById("select-winner-overlay");
 const kataPointsOverlayContent = document.getElementById("kata-points-overlay");
 const resultOverlayBackground = document.getElementById("result-overlay");
 const resultOverlayContent = document.getElementById("bracket-result-overlay");
+const resultOverlayButton = resultOverlayContent.querySelector("button");
 const backBtn = document.getElementById("overlay-back");
 
 overlayBackground.addEventListener("click", removeOverlay);
@@ -13,6 +14,7 @@ if(kataPointsOverlayContent)
     kataPointsOverlayContent.addEventListener("click", stopPropagation);
 
 resultOverlayBackground.addEventListener("click", removeOverlay);
+resultOverlayButton.addEventListener("click", removeOverlay);
 resultOverlayContent.addEventListener("click", stopPropagation);
 
 backBtn.addEventListener("click", removeOverlay);
