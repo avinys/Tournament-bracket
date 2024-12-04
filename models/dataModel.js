@@ -101,23 +101,35 @@ class Data {
   async createNewGroup(type, date, name, group, participants) {
     try {
       const newFileName = date.trim() + "-group-" + group.trim() + ".txt";
-      const filePath = "./data/" + newFileName
+      const filePath = "./data/" + newFileName;
       const part = participants
         .split("\n")
         .map((line) => line.trim())
         .filter((line) => line.length > 0);
 
-      const fileContents = part.join("\n");
-      const logContents = newFileName + "--SEP--" + type + "--SEP--" + name.trim() + "\n";
+      // Shuffle the participants array
+      this.shuffleArray(part);
 
-      await fs.writeFile(filePath, fileContents)
-      await fs.appendFile(this.groupMatchLogPath, logContents)
+      const fileContents = part.join("\n");
+      const logContents =
+        newFileName + "--SEP--" + type + "--SEP--" + name.trim() + "\n";
+
+      await fs.writeFile(filePath, fileContents);
+      await fs.appendFile(this.groupMatchLogPath, logContents);
 
       console.log("Group file created succesfully!");
       return true;
     } catch (error) {
       console.error("Error reading file:", error);
       return false;
+    }
+  }
+
+  // Fisher-Yates Shuffle algorithm
+  shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1)); // Random index
+      [array[i], array[j]] = [array[j], array[i]]; // Swap elements
     }
   }
 
