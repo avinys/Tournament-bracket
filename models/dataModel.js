@@ -193,7 +193,11 @@ class Data {
       console.log(`Deleted file: ${resultFilePath}`);
 
       let groups = await this.getGroupMatchTypes();
-      groups.filter((group) => group[0] != fileName);
+      groups = groups.filter((group) => group[0] != fileName);
+      console.log("LOG isfiltruotas: ", groups)
+
+      let found  = groups.filter((group) => group[0] == fileName);
+      console.log("LOG faile rado: ", found)
 
       const logContents = groups.map(
         (group) => group[0] + "--SEP--" + group[1] + "--SEP--" + group[2] + "\n"
