@@ -59,6 +59,44 @@ class Data {
     }
   }
 
+  async getGroupInfo(date, group) {
+    const fileName = date.trim() + "-group-" + group.trim() + ".txt";
+    const filePath = "./data/" + fileName;
+
+    try {
+        let groups = await this.getGroupMatchTypes();
+        groups.filter((group) => group[0] != fileName);
+    
+        if (groups.length == 0)
+            throw Error("File not found");
+
+        const type = groups[0][1];
+        const name = groups[0][2];
+
+        let participants = await fs.readFile(filePath, "utf-8");
+        participants = participants.split("--SECTION--")[0].split("\n").map((line) => line.trim()).filter((line) => line != "");
+
+        let isDone = false;
+        let resultFilePath = "./data/" + date.trim() + "-group-" + group.trim() + "-results.txt";
+
+        let results = await fs.readFile(resultFilePath, "utf-8");
+        results = results.split("\n")[0].split(":").map((line) => line.trim()).filter((line) => line != "");
+        isDone = results.length > 1;
+
+        return {
+            date: date,
+            group: group,
+            type: type,
+            name: name,
+            participants: participants,
+            isDone: isDone,
+        }
+      } catch (error) {
+        console.error("Error reading file:", error);
+        return [];
+      }
+  }
+
   async validateUpload(type, date, name, group, participants) {
     const existing = await this.getGroupMatchTypes();
     const fileNames = existing.map((line) => line[0]);
@@ -111,11 +149,20 @@ class Data {
       this.shuffleArray(part);
 
       const fileContents = part.join("\n");
+      await fs.writeFile(filePath, fileContents);
+
       const logContents =
         newFileName + "--SEP--" + type + "--SEP--" + name.trim() + "\n";
-
-      await fs.writeFile(filePath, fileContents);
       await fs.appendFile(this.groupMatchLogPath, logContents);
+
+      const resultFileName = date.trim() + "-group-" + group.trim() + "-results.txt";
+      const resultFilePath = "./data/" + resultFileName;
+      let resultData = ""
+
+      for (let i = 0; i < 4; i++)
+        resultData += i+1 + " place: \n";
+
+      fs.writeFile(resultFilePath, resultData);
 
       console.log("Group file created succesfully!");
       return true;
@@ -133,7 +180,34 @@ class Data {
     }
   }
 
-  async deleteGroup(date, number) {}
+  async deleteGroup(date, group) {
+    const fileName = date.trim() + "-group-" + group.trim() + ".txt";
+    const resultFileName = date.trim() + "-group-" + group.trim() + "-results.txt";
+    const filePath = "./data/" + fileName;
+    const resultFilePath = "./data/" + resultFileName;
+    try {
+      await fs.unlink(filePath);
+      console.log(`Deleted file: ${filePath}`);
+
+      await fs.unlink(resultFilePath);
+      console.log(`Deleted file: ${resultFilePath}`);
+
+      let groups = await this.getGroupMatchTypes();
+      groups.filter((group) => group[0] != fileName);
+
+      const logContents = groups.map(
+        (group) => group[0] + "--SEP--" + group[1] + "--SEP--" + group[2] + "\n"
+      );
+
+      await fs.writeFile(this.groupMatchLogPath, logContents);
+    } catch (err) {
+      if (err.code !== "ENOENT") {
+        console.error(`Error deleting file ${filePath}:`, err);
+      } else {
+        console.log(`File not found, nothing to delete: ${filePath}`);
+      }
+    }
+  }
 }
 
 module.exports = Data;

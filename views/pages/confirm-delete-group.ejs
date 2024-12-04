@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm group deletion</title>
+</head>
+<body>
+    <h2>Group Deletion Confirmation?</h2>
+    <form action="/data/delete-group" method="POST">
+        <input type="hidden" name="date" value="<%= info["date"] %>">
+        <input type="hidden" name="group" value="<%= info["group"] %>">
+        <p>Date: <b><%= info["date"] %></b></p>
+        <p>Group number: <b><%= info["group"] %></b></p>
+        <p>Group name: <b><%= info["name"] %></b></p>
+        <p>Match type: <b><%= info["type"] %></b></p>
+        <p>Participants: </p>
+        <ul id="participants">
+            <% for (let p of info["participants"]) { %>
+                <li><%= p %></li>
+            <% } %>
+        </ul>
+        <button type="submit">Delete</button>
+        <a href="/data/view-groups">Cancel</a>
+    </form>
+</body>
+</html>

@@ -7,7 +7,7 @@ async function getViewGroups(req, res) {
     res.render("../views/pages/view-groups", { groups: groupProperties })
 }
 
-async function getUploadGroup(req, res) {
+function getUploadGroup(req, res) {
     res.render("../views/pages/data-upload", { 
         correct: true, 
         message: "", 
@@ -27,7 +27,7 @@ async function postUploadGroup(req, res) {
     const name = req.body.name;
     const group = req.body.group;
     const participants = req.body.participants;
-    console.log("postUploadGroup controlller, params: ", {type, date, name, group, participants})
+    //console.log("postUploadGroup controlller, params: ", {type, date, name, group, participants})
 
     const correct = await data.validateUpload(type, date, name, group, participants);
     if(correct == "") {
@@ -38,9 +38,33 @@ async function postUploadGroup(req, res) {
     }
 }
 
+async function getDeleteGroup(req, res){
+    const date = req.query.date
+    const group = req.query.group;
+
+    let info = await data.getGroupInfo(date, group)
+
+    console.log("getDeleteGroup controller: ", info)
+
+    res.render("../views/pages/confirm-delete-group", { info: info})
+}
+
+async function postDeleteGroup(req, res) {
+    const date = req.body.date
+    const group = req.body.group;
+
+    //console.log("postDeleteGroup controller: ", info)
+
+    await data.deleteGroup(date, group)
+
+    res.redirect("/data/view-groups");
+}
+
 
 module.exports = {
     getViewGroups: getViewGroups,
     getUploadGroup: getUploadGroup,
-    postUploadGroup: postUploadGroup
+    postUploadGroup: postUploadGroup,
+    getDeleteGroup: getDeleteGroup,
+    postDeleteGroup: postDeleteGroup,
 }
