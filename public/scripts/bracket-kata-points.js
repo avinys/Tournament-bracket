@@ -117,15 +117,23 @@ async function postScore() {
 
 function fillScoresInPage(scores) {
   const mainBracketDiv = document.getElementById("main-bracket");
-  mainBracketDiv.innerHTML = "";
-  const participantsUl = document.createElement("ul");
-  participantsUl.id = "participants-list-kata-points";
+  mainBracketDiv.innerHTML = ""; // Clear existing content
 
-  console.log("Sections in script: ", scores);
+  console.log("Scores in script: ", scores);
 
-  for (let i = 0; i < scores.length; i++) {
-    // Only in the first iteration fill header
-    if (i == 0) {
+  for (let roundIndex = 0; roundIndex < scores.length; roundIndex++) {
+    // Create and append the heading for the round
+    const roundHeading = document.createElement("h3");
+    roundHeading.textContent = `Round ${roundIndex + 1}`;
+    mainBracketDiv.appendChild(roundHeading);
+
+    // Create the list for the round
+    const participantsUl = document.createElement("ul");
+    participantsUl.id = "participant-list-kata-points";
+    participantsUl.style.marginBottom = "20px";
+
+    // Add headers for the first round
+    if (roundIndex === 0) {
       const headerLiElement = document.createElement("li");
       const headerDivElement = document.createElement("div");
       headerDivElement.id = "table-headers";
@@ -142,26 +150,31 @@ function fillScoresInPage(scores) {
       headerLiElement.appendChild(headerDivElement);
       participantsUl.appendChild(headerLiElement);
     }
-    // For every section fill in participants
-    for(let participant of scores[i]) {
-        const newLiElement = document.createElement("li");
-        const newDivElement = document.createElement("div");
-    
-        const pName = document.createElement("p");
-        pName.textContent = participant.name;
-        newDivElement.appendChild(pName);
-        const pRoundScore = document.createElement("p");
-        pRoundScore.textContent = participant.currentRoundPoints;
-        newDivElement.appendChild(pRoundScore);
-        const pTotalScore = document.createElement("p");
-        pTotalScore.textContent = participant.totalPoints;
-        newDivElement.appendChild(pTotalScore);
-    
-        newLiElement.appendChild(newDivElement);
-        participantsUl.appendChild(newLiElement);
+
+    // Add participants for the round
+    for (let participant of scores[roundIndex]) {
+      const newLiElement = document.createElement("li");
+      const newDivElement = document.createElement("div");
+
+      const pName = document.createElement("p");
+      pName.textContent = participant.name;
+      newDivElement.appendChild(pName);
+
+      const pRoundScore = document.createElement("p");
+      pRoundScore.textContent = participant.currentRoundPoints;
+      newDivElement.appendChild(pRoundScore);
+
+      const pTotalScore = document.createElement("p");
+      pTotalScore.textContent = participant.totalPoints;
+      newDivElement.appendChild(pTotalScore);
+
+      newLiElement.appendChild(newDivElement);
+      participantsUl.appendChild(newLiElement);
     }
+
+    // Append the list for this round to the main bracket
+    mainBracketDiv.appendChild(participantsUl);
   }
-  mainBracketDiv.appendChild(participantsUl);
 }
 
 function fillResultOverlay(result) {
@@ -194,6 +207,7 @@ submitBtn.addEventListener("click", () =>
     if (input.value != "") 
       scores.push(input.value);
   }
+  console.log("Po paspaudimo atidarom patvirtinima")
   openConfirm(postScore, "bracket-kata-points", null, scores)
 });
 //submitBtn.addEventListener("click", postScore);

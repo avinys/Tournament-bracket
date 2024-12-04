@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <link rel="stylesheet" href="/styles/general.css" />
     <link rel="stylesheet" href="/styles/overlay.css" />
     <link rel="stylesheet" href="/styles/alert-overlay.css" />
     <link rel="stylesheet" href="/styles/bracket.css" />
@@ -32,7 +33,7 @@
       <ul id="participant-list-kata-points" style="margin-bottom: 20px;">
         <% if(i == 0) { %>
         <li>
-            <div id="table-headerS">
+            <div id="table-headers">
                 <h3>Participant's name</h3>
                 <h3>Current round points</h3>
                 <h3>Points in total</h3>
@@ -56,8 +57,7 @@
         <%= isEnd ? 'View Results' : 'Start matchup' %>
       </button>
     </div>
+    <a href="/data/view-groups" class="btn">Back to View Groups</a> 
 
-    
-    <a href="/data/view-groups">Back to View Groups</a> 
   </body>
 </html>
