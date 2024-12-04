@@ -18,7 +18,8 @@ async function getMatches(req, res) {
     if(match == undefined || match.date != date || match.group != group) 
         match = new Match(date, group)
     const sections = await match.getParticipants()
-    res.render("pages/bracket-single-elimination.ejs", { date: date, group: group, sections: sections})
+    const results = [...match.results];
+    res.render("pages/bracket-single-elimination.ejs", { date: date, group: group, sections: sections, results: results})
 }
 
 async function getNextMatch(req, res) { 
@@ -56,10 +57,12 @@ async function postMatch(req, res) {
 
     await match.matchResult(winner);
     let sections = await match.getParticipants();
+    let results = [...match.results];
 
     let responseData = {
         message: 'Winner posted succesfully!',
         sections: sections,
+        results: results,
         isEnd: false
     };
 
@@ -67,6 +70,7 @@ async function postMatch(req, res) {
         responseData = {
             message: "Winner posted succesfully. Group Bracket ended.",
             sections: sections,
+            results: results,
             isEnd: true
         }
     }

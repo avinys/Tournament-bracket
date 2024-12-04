@@ -44,7 +44,7 @@ async function postWinner(index) {
       if (data["isEnd"] == true) {
         startMatchBtn.textContent = "View Results";
       }
-      generateBracket(data["sections"]);
+      generateBracket(data["sections"], data["results"]);
     })
     .catch((error) => {
       console.error("There was a problem with the fetch operation:", error);
@@ -87,7 +87,7 @@ async function startMatch() {
       } else {
         if (
           data["receivedData"] != [[], []] &&
-          data["receivedData"][0].length != 1
+          Array.isArray(data["receivedData"][0])
         ) {
           aka.textContent = data["receivedData"][0][0];
           shiro.textContent = data["receivedData"][0][1];
@@ -100,7 +100,8 @@ async function startMatch() {
             addEventListenerToParticipantsFlag = true;
           }
           overlay.classList.add("active");
-        }
+        } else if (!Array.isArray(data["receivedData"][0]))
+          location.reload();
       }
     })
     .catch((error) => {
@@ -174,5 +175,8 @@ function fillResultOverlay(result) {
 
 
 
-document.addEventListener("DOMContentLoaded", () => generateBracket(sections));
+document.addEventListener("DOMContentLoaded", () =>  {
+  generateBracket(sections)
+  getNextUp()
+});
 startMatchBtn.addEventListener("click", startMatch);

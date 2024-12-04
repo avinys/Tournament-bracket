@@ -43,8 +43,8 @@ async function postWinner(index) {
       if (data["isEnd"] == true) {
         startMatchBtn.textContent = "View Results";
       }
-      generateBracket(data["sections"]);
-      generateLowerBracket(data["losers"]);
+      generateBracket(data["sections"], data["results"]);
+      generateLowerBracket(data["losers"], data["results"]);
     })
     .catch((error) => {
       console.error("There was a problem with the fetch operation:", error);
@@ -86,11 +86,11 @@ async function startMatch() {
       } else {
         if (
           data["receivedData"] != [[], []] &&
-          data["receivedData"][0].length != 1
+          Array.isArray(data["receivedData"][0])
         ) {
           aka.textContent = data["receivedData"][0][0];
           shiro.textContent = data["receivedData"][0][1];
-          console.log("Data received:", data); // Handle the response data from the server
+          console.log("Data received:", data);
           akaPostWinnerData = data["receivedData"][1][0];
           shiroPostWinnerData = data["receivedData"][1][1];
           if (!addEventListenerToParticipantsFlag) {
@@ -99,7 +99,8 @@ async function startMatch() {
             addEventListenerToParticipantsFlag = true;
           }
           overlay.classList.add("active");
-        }
+        } else if (!Array.isArray(data["receivedData"][0]))
+          location.reload();
       }
     })
     .catch((error) => {
@@ -172,7 +173,8 @@ function fillResultOverlay(result) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  generateBracket(sections);
-  generateLowerBracket(losers);
+  generateBracket(sections, results);
+  generateLowerBracket(losers, results);
+  getNextUp()
 });
 startMatchBtn.addEventListener("click", startMatch);
