@@ -94,8 +94,12 @@ async function startMatch() {
           akaPostWinnerData = data["receivedData"][1][0];
           shiroPostWinnerData = data["receivedData"][1][1];
           if (!addEventListenerToParticipantsFlag) {
-            aka.addEventListener("click", akaButtonParticipantFunction);
-            shiro.addEventListener("click", shiroButtonParticipantFunction);
+            aka.addEventListener("click", () => 
+              openConfirm(akaButtonParticipantFunction,"bracket-double-elimination", data["receivedData"][0][0]))
+            shiro.addEventListener("click", () => 
+              openConfirm(shiroButtonParticipantFunction, "bracket-double-elimination", data["receivedData"][0][1]))
+            // aka.addEventListener("click", akaButtonParticipantFunction);
+            // shiro.addEventListener("click", shiroButtonParticipantFunction);
             addEventListenerToParticipantsFlag = true;
           }
           overlay.classList.add("active");

@@ -9,15 +9,17 @@
     <link rel="stylesheet" href="/styles/next-up.css" />
 
     <script src="/scripts/overlay.js" defer></script>
+    <script src="/scripts/confirm-winner-overlay.js" defer></script>
     <script src="/scripts/bracket-single-elimination.js" defer></script>
     <script src="/scripts/bracket-render.js" defer></script>
 
     <title><%= date %> Group <%= group %></title>
   </head>
   <body>
-    <%- include('../partials/bracket-result-overlay.ejs') %> <%-
-    include('../partials/match-overlay.ejs') %> <%-
-    include('../partials/next-up.ejs') %>
+    <%- include('../partials/bracket-result-overlay.ejs') %> 
+    <%- include('../partials/match-overlay.ejs') %> 
+    <%- include('../partials/next-up.ejs') %>
+    <%- include ('../partials/confirm-winner-overlay') %>
     <h2 id="bracket-name">
       List of participants for <%= date %> group <%= group %>:
     </h2>

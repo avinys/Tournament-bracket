@@ -3,7 +3,7 @@
 //const alertOverlayText = document.querySelector("#alert-overlay-contents p");
 
 function showAlert(message) {
-    alertMessageDiv.textContent = message;
+    alertOverlayText.textContent = message;
     alertOverlay.classList.add("active");
 }
 

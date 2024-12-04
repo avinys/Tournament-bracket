@@ -12,15 +12,19 @@
 
     <script src="/scripts/bracket-kata-points.js" defer></script>
     <script src="/scripts/overlay.js" defer></script>
+    <script src="/scripts/confirm-winner-overlay.js" defer></script>
     <script src="/scripts/alert-overlay.js" defer></script>
 
     <title><%= date %> Group <%= group %></title>
   </head>
   <body>
     <%- include('../partials/alert-overlay.ejs') %>
+    <%- include ('../partials/confirm-winner-overlay') %>
     <%- include('../partials/bracket-result-overlay.ejs') %>
     <%- include('../partials/match-overlay-kata-points.ejs') %>
     <%- include('../partials/match-kata-final-notice.ejs') %>
+
+
     <h2 id="bracket-name">List of participants for <%= date %> group <%= group %>:</h2>
     <div id="main-bracket" style="flex-direction: column;">
     <% for(let i = 0; i < rounds.length; i++) { %>

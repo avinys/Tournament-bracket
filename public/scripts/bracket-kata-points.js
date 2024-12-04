@@ -2,7 +2,7 @@ const h2Element = document.querySelector("h2");
 const startMatchBtn = document.getElementById("start-match-button");
 const overlay = document.getElementById("overlay");
 const overlayContents = document.getElementById("select-winner-overlay");
-const overlayHeader = document.querySelector("#select-winner-overlay h2");
+const overlayHeader = document.querySelector("#kata-points-overlay h2");
 const finalNoticeDiv = document.getElementById("final-notice");
 const alertOverlay = document.getElementById("alert-overlay");
 const alertOverlayDiv = document.getElementById("alert-overlay-contents")
@@ -186,4 +186,14 @@ function fillResultOverlay(result) {
 }
 
 startMatchBtn.addEventListener("click", startMatch);
-submitBtn.addEventListener("click", postScore);
+submitBtn.addEventListener("click", () =>
+{
+  let scores = [];
+
+  for (let input of document.querySelectorAll("#participant-points input")) {
+    if (input.value != "") 
+      scores.push(input.value);
+  }
+  openConfirm(postScore, "bracket-kata-points", null, scores)
+});
+//submitBtn.addEventListener("click", postScore);

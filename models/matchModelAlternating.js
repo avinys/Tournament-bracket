@@ -42,8 +42,9 @@ class Match {
 
   async initializeState() {
     try {
-      await deleteFile(this.tempFilePath);
-      await this.saveCurrentLosersAndIndexState();
+      //await deleteFile(this.tempFilePath);
+      await this.loadCurrentLosersAndIndexState();
+      //await this.saveCurrentLosersAndIndexState();
       //console.log("initializeState: ",this.alternatingPicker)
     } catch (err) {
       console.error("Error during state initialization:", err);
