@@ -183,11 +183,21 @@ button {
 #confirm-winner-overlay-contents p {
     text-align: left;
 }
-#confirm-winner-overlay-contents button {
+
+#confirm-winner-overlay-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#cancel-confirm-winner-selection {
     width: 10%;
     min-width: 85px;
-    margin-left:90%;
     cursor: pointer;
+}
+
+#confirm-winner-selection {
+    width: 80%;
 }
 
 #confirm-winner-overlay #alert-message-div {
@@ -195,7 +205,7 @@ button {
     font-size: 18px;
 }
 
-#confirm-winner-overlay button {
+/* #confirm-winner-overlay button {
     padding: 12px;
     border-style: solid;
     border-width: 2px;
@@ -204,7 +214,7 @@ button {
     color: white;
     border-radius: 9px;
     font-size: 18px;
-}
+} */
 
 #confirm-winner-overlay button :hover{
     background-color: rgb(97, 57, 57);

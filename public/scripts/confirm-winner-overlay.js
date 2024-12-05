@@ -1,8 +1,16 @@
 const confirmWinnerOverlay= document.getElementById("confirm-winner-overlay");
 const confirmButton = document.getElementById("confirm-winner-selection");
-const confirmWinnerMessage = confirmWinnerOverlay.querySelector("p")
+const confirmWinnerMessage = confirmWinnerOverlay.querySelector("p");
+const cancelConfirmWinnerButton = document.getElementById("cancel-confirm-winner-selection");
+const confirmWinnerOverlayContents = document.getElementById("confirm-winner-overlay-contents");
 
 let delegate;
+
+function closeConfirm() {
+    if (confirmWinnerOverlay.classList.contains("active")) {
+        confirmWinnerOverlay.classList.remove("active");
+    }
+}
 
 function openConfirm(del, mode, winner = null, scores = null) {
     delegate = del;
@@ -21,17 +29,18 @@ function openConfirm(del, mode, winner = null, scores = null) {
             "</b>";
     }
 
-    // Remove existing listener first
     confirmButton.removeEventListener("click", confirmHandler);
-
-    // Add the event listener
     confirmButton.addEventListener("click", confirmHandler);
 }
 
 function confirmHandler() {
-    if (confirmWinnerOverlay.classList.contains("active")) {
-        confirmWinnerOverlay.classList.remove("active");
-    }
+    closeConfirm();
     console.log("Confirmed, calling delegate function");
     delegate();
 }
+
+cancelConfirmWinnerButton.addEventListener("click", closeConfirm);
+confirmWinnerOverlay.addEventListener("click", closeConfirm);
+confirmWinnerOverlayContents.addEventListener("click", (event) => {
+    event.stopPropagation();
+});

@@ -19,6 +19,8 @@ const group = document
 const nextUpContentDiv = document.getElementById("next-up-content");
 
 let addEventListenerToParticipantsFlag = false;
+let akaEventHandler = null;
+let shiroEventHandler = null;
 
 async function postWinner(index) {
   await fetch("/bracket-double-elimination/next", {
@@ -93,18 +95,36 @@ async function startMatch() {
           console.log("Data received:", data);
           akaPostWinnerData = data["receivedData"][1][0];
           shiroPostWinnerData = data["receivedData"][1][1];
-          if (!addEventListenerToParticipantsFlag) {
-            aka.addEventListener("click", () => 
-              openConfirm(akaButtonParticipantFunction,"bracket-double-elimination", data["receivedData"][0][0]))
-            shiro.addEventListener("click", () => 
-              openConfirm(shiroButtonParticipantFunction, "bracket-double-elimination", data["receivedData"][0][1]))
-            // aka.addEventListener("click", akaButtonParticipantFunction);
-            // shiro.addEventListener("click", shiroButtonParticipantFunction);
-            addEventListenerToParticipantsFlag = true;
-          }
+
+          // Re-add eventListeners on aka and shiro
+
+          if (akaEventHandler)
+            aka.removeEventListener("click", akaEventHandler);
+          if (shiroEventHandler)
+            shiro.removeEventListener("click", shiroEventHandler);
+
+          akaEventHandler = () =>
+            openConfirm(
+              akaButtonParticipantFunction,
+              "bracket-double-elimination",
+              data["receivedData"][0][0]
+            );
+
+          shiroEventHandler = () =>
+            openConfirm(
+              shiroButtonParticipantFunction,
+              "bracket-double-elimination",
+              data["receivedData"][0][1]
+            );
+
+          aka.addEventListener("click", akaEventHandler);
+          shiro.addEventListener("click", shiroEventHandler);
+
+          // aka.addEventListener("click", akaButtonParticipantFunction);
+          // shiro.addEventListener("click", shiroButtonParticipantFunction);
+          addEventListenerToParticipantsFlag = true;
           overlay.classList.add("active");
-        } else if (!Array.isArray(data["receivedData"][0]))
-          location.reload();
+        } else if (!Array.isArray(data["receivedData"][0])) location.reload();
       }
     })
     .catch((error) => {
@@ -174,14 +194,15 @@ function fillResultOverlay(result) {
   });
 
   bracketResultOverlayContent.appendChild(olElement);
-  const close = document.createElement("button")
-  close.textContent = "Close"
+  const close = document.createElement("button");
+  close.textContent = "Close";
+  close.addEventListener("click", removeOverlay);
   bracketResultOverlayContent.appendChild(close);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   generateBracket(sections, results);
   generateLowerBracket(losers, results);
-  getNextUp()
+  getNextUp();
 });
 startMatchBtn.addEventListener("click", startMatch);
