@@ -23,6 +23,9 @@
             <div>
                 <label for="type">Choose match type for the group: </label>
                 <select name="type" id="type" required>
+                    <option value="" selected>
+                        -
+                    </option>
                     <option value="bracket-single-elimination" <%=formData?.type==='bracket-single-elimination'
                         ? 'selected' : '' %>>
                         Single elimination
@@ -48,13 +51,12 @@
             </div>
 
             <div>
-                <label for="group">Input group number: </label>
+                <label for="group">Input group number (group date and number combination MUST be unique): </label>
                 <input type="text" name="group" id="group" required value="<%= formData?.group || '' %>">
             </div>
 
             <div>
                 <label for="participants">Enter participants (every on a new line): </label>
-                <!-- <textarea name="participants"></textarea> -->
                 <textarea name="participants" id="participants" required><%- (formData?.participants || '').trim() %></textarea>
             </div>
 

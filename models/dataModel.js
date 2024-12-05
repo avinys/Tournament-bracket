@@ -64,37 +64,45 @@ class Data {
     const filePath = "./data/" + fileName;
 
     try {
-        let groups = await this.getGroupMatchTypes();
-        groups.filter((group) => group[0] != fileName);
-    
-        if (groups.length == 0)
-            throw Error("File not found");
+      let groups = await this.getGroupMatchTypes();
+      groups.filter((group) => group[0] != fileName);
 
-        const type = groups[0][1];
-        const name = groups[0][2];
+      if (groups.length == 0) throw Error("File not found");
 
-        let participants = await fs.readFile(filePath, "utf-8");
-        participants = participants.split("--SECTION--")[0].split("\n").map((line) => line.trim()).filter((line) => line != "");
+      const type = groups[0][1];
+      const name = groups[0][2];
 
-        let isDone = false;
-        let resultFilePath = "./data/" + date.trim() + "-group-" + group.trim() + "-results.txt";
+      let participants = await fs.readFile(filePath, "utf-8");
+      participants = participants
+        .split("--SECTION--")[0]
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line != "");
 
-        let results = await fs.readFile(resultFilePath, "utf-8");
-        results = results.split("\n")[0].split(":").map((line) => line.trim()).filter((line) => line != "");
-        isDone = results.length > 1;
+      let isDone = false;
+      let resultFilePath =
+        "./data/" + date.trim() + "-group-" + group.trim() + "-results.txt";
 
-        return {
-            date: date,
-            group: group,
-            type: type,
-            name: name,
-            participants: participants,
-            isDone: isDone,
-        }
-      } catch (error) {
-        console.error("Error reading file:", error);
-        return [];
-      }
+      let results = await fs.readFile(resultFilePath, "utf-8");
+      results = results
+        .split("\n")[0]
+        .split(":")
+        .map((line) => line.trim())
+        .filter((line) => line != "");
+      isDone = results.length > 1;
+
+      return {
+        date: date,
+        group: group,
+        type: type,
+        name: name,
+        participants: participants,
+        isDone: isDone,
+      };
+    } catch (error) {
+      console.error("Error reading file:", error);
+      return [];
+    }
   }
 
   async validateUpload(type, date, name, group, participants) {
@@ -114,13 +122,21 @@ class Data {
     if (type == "" || date == "" || name == "" || participantsArr.length == 0)
       return "Please fill all fields with valid data (spaces are not valid data).";
 
-    // Check if fileName already exists
-    if (fileNames.includes(newFileName))
-      return (
-        "Group with provided date and number already exists. " +
-        "If you would like to assign the group to several match types," +
-        " please change the group number with underline (1 → 1_1, 1_2, etc.)."
-      );
+    // Define a regex for illegal characters
+    const illegalChars = /[<>:"\/\\|?*]/;
+
+    // Check if group number contains illegal characters
+    if (!illegalChars.test(newFileName)) 
+      return `Please ensure, that group number does not include illegal characters like [<>:"\/\\|?*]`;
+
+
+      if (fileNames.includes(newFileName))
+        // Check if fileName already exists
+        return (
+          "Group with provided date and number already exists. " +
+          "If you would like to assign the group to several match types," +
+          " please change the group number with underline (1 → 1_1, 1_2, etc.)."
+        );
 
     // Check if group with same parameters exists
     if (
@@ -155,12 +171,12 @@ class Data {
         newFileName + "--SEP--" + type + "--SEP--" + name.trim() + "\n";
       await fs.appendFile(this.groupMatchLogPath, logContents);
 
-      const resultFileName = date.trim() + "-group-" + group.trim() + "-results.txt";
+      const resultFileName =
+        date.trim() + "-group-" + group.trim() + "-results.txt";
       const resultFilePath = "./data/" + resultFileName;
-      let resultData = ""
+      let resultData = "";
 
-      for (let i = 0; i < 4; i++)
-        resultData += i+1 + " place: \n";
+      for (let i = 0; i < 4; i++) resultData += i + 1 + " place: \n";
 
       fs.writeFile(resultFilePath, resultData);
 
@@ -182,7 +198,8 @@ class Data {
 
   async deleteGroup(date, group) {
     const fileName = date.trim() + "-group-" + group.trim() + ".txt";
-    const resultFileName = date.trim() + "-group-" + group.trim() + "-results.txt";
+    const resultFileName =
+      date.trim() + "-group-" + group.trim() + "-results.txt";
     const filePath = "./data/" + fileName;
     const resultFilePath = "./data/" + resultFileName;
     try {
@@ -194,10 +211,10 @@ class Data {
 
       let groups = await this.getGroupMatchTypes();
       groups = groups.filter((group) => group[0] != fileName);
-      console.log("LOG isfiltruotas: ", groups)
+      console.log("LOG isfiltruotas: ", groups);
 
-      let found  = groups.filter((group) => group[0] == fileName);
-      console.log("LOG faile rado: ", found)
+      let found = groups.filter((group) => group[0] == fileName);
+      console.log("LOG faile rado: ", found);
 
       const logContents = groups.map(
         (group) => group[0] + "--SEP--" + group[1] + "--SEP--" + group[2] + "\n"
