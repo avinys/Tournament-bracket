@@ -122,12 +122,12 @@ class Data {
     if (type == "" || date == "" || name == "" || participantsArr.length == 0)
       return "Please fill all fields with valid data (spaces are not valid data).";
 
-    // Define a regex for illegal characters
-    const illegalChars = /[<>:"\/\\|?*]/;
+    // // Define a regex for illegal characters
+    // const illegalChars = /[<>:"\/\\|?*]/;
 
-    // Check if group number contains illegal characters
-    if (!illegalChars.test(newFileName)) 
-      return `Please ensure, that group number does not include illegal characters like [<>:"\/\\|?*]`;
+    // // Check if group number contains illegal characters
+    // if (!illegalChars.test(newFileName)) 
+    //   return `Please ensure, that group number does not include illegal characters like [<>:"\/\\|?*]`;
 
 
       if (fileNames.includes(newFileName))

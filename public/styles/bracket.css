@@ -67,7 +67,9 @@ table {
   }
 
   #bracket-actions {
-    text-align: center
+    text-align: center;
+    display: flex;
+    flex-direction: column;
   }
   
 
