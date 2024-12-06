@@ -12,7 +12,7 @@ function closeConfirm() {
     }
 }
 
-function openConfirm(del, mode, winner = null, scores = null) {
+function openConfirm(del, mode, side = null,winner = null, scores = null) {
     delegate = del;
 
     if (!confirmWinnerOverlay.classList.contains("active")) {
@@ -21,12 +21,19 @@ function openConfirm(del, mode, winner = null, scores = null) {
 
     if (mode === "bracket-single-elimination" || mode === "bracket-double-elimination") {
         confirmWinnerMessage.innerHTML =
-            "Please confirm, that winner of the match is <b>" + winner + "</b>";
+            "Please confirm, that winner of the match is <b>" + side + ": </b>" + winner + ".";
+        if (side === "AKA")
+            confirmWinnerOverlayContents.style.backgroundColor = "red"
+        else if (side === "SHIRO")
+            confirmWinnerOverlayContents.style.backgroundColor = "white"
+        else
+            confirmWinnerOverlayContents.style.backgroundColor = "beige";
     } else if (mode === "bracket-kata-points") {
         confirmWinnerMessage.innerHTML =
             "Please confirm, that entered scores are correct <b>" +
             scores.map((score) => "|" + score + "|") +
             "</b>";
+        confirmWinnerOverlayContents.style.backgroundColor = "beige";
     }
 
     confirmButton.removeEventListener("click", confirmHandler);

@@ -107,6 +107,7 @@ async function startMatch() {
             openConfirm(
               akaButtonParticipantFunction,
               "bracket-double-elimination",
+              "AKA",
               data["receivedData"][0][0]
             );
 
@@ -114,6 +115,7 @@ async function startMatch() {
             openConfirm(
               shiroButtonParticipantFunction,
               "bracket-double-elimination",
+              "SHIRO",
               data["receivedData"][0][1]
             );
 

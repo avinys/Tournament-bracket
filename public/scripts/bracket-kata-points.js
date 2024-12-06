@@ -211,6 +211,6 @@ submitBtn.addEventListener("click", () =>
       scores.push(input.value);
   }
   console.log("Po paspaudimo atidarom patvirtinima")
-  openConfirm(postScore, "bracket-kata-points", null, scores)
+  openConfirm(postScore, "bracket-kata-points", null, null, scores)
 });
 //submitBtn.addEventListener("click", postScore);

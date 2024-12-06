@@ -108,12 +108,14 @@ async function startMatch() {
             openConfirm(
               akaButtonParticipantFunction,
               "bracket-single-elimination",
+              "AKA",
               data["receivedData"][0][0]
             );
           shiroEventHandler = () =>
             openConfirm(
               shiroButtonParticipantFunction,
               "bracket-single-elimination",
+              "SHIRO",
               data["receivedData"][0][1]
             );
 

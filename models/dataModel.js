@@ -65,7 +65,8 @@ class Data {
 
     try {
       let groups = await this.getGroupMatchTypes();
-      groups.filter((group) => group[0] != fileName);
+      groups = groups.filter((group) => group[0] == fileName);
+      console.log("GetGroupInfo, groups: ",groups, ", filename: ", fileName)
 
       if (groups.length == 0) throw Error("File not found");
 
@@ -122,21 +123,18 @@ class Data {
     if (type == "" || date == "" || name == "" || participantsArr.length == 0)
       return "Please fill all fields with valid data (spaces are not valid data).";
 
-    // Define a regex for illegal characters
-    const illegalChars = /[<>:"\/\\|?*]/;
-
     // Check if group number contains illegal characters
-    if (!illegalChars.test(newFileName)) 
-      return `Please ensure, that group number does not include illegal characters like [<>:"\/\\|?*]`;
+    if (group.match(/[<>:"\/\\|?*.]/)) {
+      return `Please ensure that the group number does not include illegal characters like [<>:"/\\|?*]`;
+    }
 
-
-      if (fileNames.includes(newFileName))
-        // Check if fileName already exists
-        return (
-          "Group with provided date and number already exists. " +
-          "If you would like to assign the group to several match types," +
-          " please change the group number with underline (1 → 1_1, 1_2, etc.)."
-        );
+    if (fileNames.includes(newFileName))
+      // Check if fileName already exists
+      return (
+        "Group with provided date and number already exists. " +
+        "If you would like to assign the group to several match types," +
+        " please change the group number with underline (1 → 1_1, 1_2, etc.)."
+      );
 
     // Check if group with same parameters exists
     if (
