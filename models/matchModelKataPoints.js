@@ -166,7 +166,12 @@ class Match {
             totalPoints: parseFloat(p.totalPoints)
         }));
 
-        part.sort((a, b) => b.totalPoints - a.totalPoints)
+        part.sort((a, b) => {
+            if (b.totalPoints !== a.totalPoints) {
+                return b.totalPoints - a.totalPoints;
+            }
+            return b.currentRoundPoints - a.currentRoundPoints;
+        });
 
         //console.log("Create New Section: finalFlag = " + this.finalFlag + ", showFinalFlag = " + this.showFinalFlag + ", part: ")
         for (var p of part)
