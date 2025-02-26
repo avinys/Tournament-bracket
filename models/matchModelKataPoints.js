@@ -50,7 +50,7 @@ class Match {
         let roundScore = 0;
 
         if(scores.length > 3) {
-            scores.sort((a, b) => b - a);
+            scores.sort((a, b) => a - b);
             scores.shift();
             scores.pop();
         }
