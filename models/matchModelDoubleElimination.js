@@ -3,11 +3,25 @@ const { PassThrough } = require("stream");
 
 const fs = require("fs").promises;
 
+async function deleteFile(filePath) {
+  try {
+    await fs.unlink(filePath);
+    console.log(`Deleted file: ${filePath}`);
+  } catch (err) {
+    if (err.code !== "ENOENT") {
+      console.error(`Error deleting file ${filePath}:`, err);
+    } else {
+      console.log(`File not found, nothing to delete: ${filePath}`);
+    }
+  }
+}
+
 class Match {
   constructor(date, group) {
     this.date = date;
     this.group = group;
     this.filePath = "./data/" + date + "-group-" + group + ".txt";
+    this.tempFilePath = "./data/temp/TEMP-" + date + "-group-" + group + ".txt";
     this.resultFilePath = "./data/" + date + "-group-" + group + "-results.txt";
     this.sections = [];
     this.currentSection = [];
@@ -23,13 +37,26 @@ class Match {
     // If alternatingPicker == false, execute matches top to bottom
     // If alternatingPicker == true, execute matches bottom to top
     this.alternatingPicker = false;
+
+    // Delete temp file, then save initialized state
+    this.initializeState();
+  }
+
+  async initializeState() {
+    try {
+      await deleteFile(this.tempFilePath);
+      await this.saveCurrentLosersAndIndexState();
+      //console.log("initializeState: ",this.alternatingPicker)
+    } catch (err) {
+      console.error("Error during state initialization:", err);
+    }
   }
 
   async loadSections() {
     try {
       const data = await fs.readFile(this.filePath, "utf-8");
       this.sections = data
-        .split(/\s*break\s*/)
+        .split("--SECTION--")
         .map((section) => section.trim())
         .map((section) =>
           section
@@ -44,6 +71,8 @@ class Match {
 
   async getParticipants() {
     await this.loadSections();
+    await this.loadCurrentLosersAndIndexState();
+    //console.log("getParticipants: ",this.alternatingPicker)
     this.roundEnded = false;
     if (this.sections.length == 0) {
       this.currentSection = [];
@@ -60,9 +89,12 @@ class Match {
 
   async getMatch() {
     await this.loadSections();
+    await this.loadCurrentLosersAndIndexState();
     console.log("Sections in getMatch: ", this.sections);
     console.log("Losers in getMatch: ", this.losers);
     console.log("getLoser in getMatch: ", this.getLoser);
+    console.log("alternatingPicker in getMatch: ", this.getLoser);
+    console.log("currentSection in getMatch: ", this.currentSection);
     if (this.results[0] != "") return this.results;
 
     // Add a new section if the round is over
@@ -72,6 +104,7 @@ class Match {
       if (this.alternatingPicker == true) this.alternatingPicker = false;
       else this.alternatingPicker = true;
     }
+    await this.saveCurrentLosersAndIndexState();
     // If down to 2 participants, execute small and big final mode
     if (this.currentSection.length == 2) {
       return this.getMatchFinal();
@@ -82,8 +115,8 @@ class Match {
       if (this.losers != this.losersInLastMatch) {
         return [
           [
-            this.losers[this.losers.length - 1],
             this.losers[this.losers.length - 2],
+            this.losers[this.losers.length - 1],
           ],
           [0, 1],
         ];
@@ -99,7 +132,7 @@ class Match {
         //this.getLoser = false;
         await this.matchResult(this.currentMatchIndex);
         return [
-          this.currentSection[this.currentMatchIndex],
+          this.currentSection[this.currentMatchIndex - 2],
           this.currentMatchIndex,
         ];
       } else if (this.currentSection.length != 0) {
@@ -144,10 +177,17 @@ class Match {
         //this.currentSection.push(this.losers[this.losers.length - 1]);
         //this.currentSection.push(this.losers[this.losers.length - 2]);
         this.place3Sent = true;
+
+        // Critical case if bracket consists of 3 participants
+        if (this.sections[0].length == 3) {
+          this.matchResult3Place(1);
+          return this.getMatchFinal();
+        }
+
         return [
           [
-            this.losers[this.losers.length - 1],
             this.losers[this.losers.length - 2],
+            this.losers[this.losers.length - 1],
           ],
           [0, 1],
         ];
@@ -169,9 +209,9 @@ class Match {
     // If not handling the match for 3rd place and executing Losers bracket
     else if (this.getLoser == true) {
       if (winnerIndex == 0)
-        this.losers.push(this.losers[this.losers.length - 1]);
-      else if (winnerIndex == 1)
         this.losers.push(this.losers[this.losers.length - 2]);
+      else if (winnerIndex == 1)
+        this.losers.push(this.losers[this.losers.length - 1]);
     }
     // If not handling the match for 3rd place and executing Upper bracket
     else {
@@ -183,6 +223,18 @@ class Match {
         this.sections[this.sections.length - 1].unshift(
           this.currentSection[winnerIndex]
         );
+      }
+
+      // Edge case for when there are 3 participants in a group
+      if (this.sections[0].length == 3 && this.losers.length == 0) {
+        if (winnerIndex == this.currentMatchIndex)
+          this.sections[this.sections.length - 1].push(
+            this.currentSection[winnerIndex + 1]
+          );
+        else
+          this.sections[this.sections.length - 1].push(
+            this.currentSection[winnerIndex - 1]
+          );
       }
 
       // Saving losers
@@ -200,9 +252,9 @@ class Match {
         }
       }
       this.currentMatchIndex += 2;
-      this.writeSectionsToFile();
+      await this.writeSectionsToFile();
     }
-    
+
     if (this.losers.length == 2) this.getLoser = true;
     else if (this.losers.length > 2)
       if (this.getLoser == true) this.getLoser = false;
@@ -214,6 +266,7 @@ class Match {
     console.log("Losers in matchResult: ", this.losers);
     console.log("getLoser in matchResult: ", this.getLoser);
     console.log("place3Sent in matchResult: ", this.place3Sent);
+    await this.saveCurrentLosersAndIndexState();
   }
 
   async matchResult3Place(winnerIndex) {
@@ -230,48 +283,53 @@ class Match {
       //await this.writeWinnerToFile(winnerIndex);
     } else {
       if (winnerIndex == 0) {
-        this.results[2] = this.losers[this.losers.length - 1];
-        this.results[3] = this.losers[this.losers.length - 2];
-      } else if (winnerIndex == 1) {
         this.results[2] = this.losers[this.losers.length - 2];
         this.results[3] = this.losers[this.losers.length - 1];
+      } else if (winnerIndex == 1) {
+        this.results[2] = this.losers[this.losers.length - 1];
+        this.results[3] = this.losers[this.losers.length - 2];
       }
+
+      // Edge case if only 3 participants
+      if (this.sections[0].length == 3) this.results[3] = "";
+
       this.place3Done = true;
     }
 
     console.log("matchResult3Place. Sections: ", this.sections);
-    this.writeSectionsToFile();
+    await this.writeSectionsToFile();
+    await this.saveCurrentLosersAndIndexState();
   }
 
-  matchResultLoserBracket() {}
+  // matchResultLoserBracket() {}
 
-  async writeWinnerToFile() {
-    let lastSection = this.sections[this.sections.length - 1];
-    let dataToWrite = `${lastSection[lastSection.length - 1]}\n`;
-    try {
-      await fs.appendFile(this.filePath, dataToWrite, "utf-8");
-      //this.currentMatchIndex += 2;
-      if (this.currentMatchIndex == this.currentSection.length - 1) {
-        await fs.appendFile(
-          this.filePath,
-          this.currentSection[this.currentMatchIndex] + "\n",
-          "utf-8"
-        );
-        this.sections[this.sections.length - 1].push(
-          this.currentSection[this.currentMatchIndex]
-        );
-      }
-    } catch (err) {
-      console.error("Error writing to file:", err);
-    }
-    //await this.loadSections();
-  }
+  // async writeWinnerToFile() {
+  //   let lastSection = this.sections[this.sections.length - 1];
+  //   let dataToWrite = `${lastSection[lastSection.length - 1]}\n`;
+  //   try {
+  //     await fs.appendFile(this.filePath, dataToWrite, "utf-8");
+  //     //this.currentMatchIndex += 2;
+  //     if (this.currentMatchIndex == this.currentSection.length - 1) {
+  //       await fs.appendFile(
+  //         this.filePath,
+  //         this.currentSection[this.currentMatchIndex] + "\n",
+  //         "utf-8"
+  //       );
+  //       this.sections[this.sections.length - 1].push(
+  //         this.currentSection[this.currentMatchIndex]
+  //       );
+  //     }
+  //   } catch (err) {
+  //     console.error("Error writing to file:", err);
+  //   }
+  //   //await this.loadSections();
+  // }
 
   async writeSectionsToFile() {
     try {
       const customData = this.sections
         .map((innerArray) => innerArray.join("\n"))
-        .join("\n\nbreak\n\n");
+        .join("\n--SECTION--\n");
       let resultData = "";
       for (let i = 0; i < this.results.length; i++) {
         resultData += `${i + 1} place: ${this.results[i]}\n`;
@@ -283,12 +341,100 @@ class Match {
     }
   }
 
+  async loadCurrentLosersAndIndexState() {
+    try {
+      // Read and clean up the file
+      const tempData = await fs.readFile(this.tempFilePath, "utf-8");
+      //console.log("Raw file content:", tempData);
+
+      const tempLines = tempData
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line !== ""); // Remove empty lines
+
+      //console.log("Loaded state: ", tempLines);
+
+      // Load losers from the first line
+      if (tempLines.length > 0) {
+        this.losers =
+          tempLines[0] === "EMPTY"
+            ? []
+            : tempLines[0].split(",").filter((loser) => loser.trim() !== "");
+      }
+
+      // Load other data from the last line
+      if (tempLines.length > 1) {
+        const parsedData = tempLines[tempLines.length - 1]
+          .split(",")
+          .map((value) => {
+            if (value === "true" || value === "false") return value === "true"; // Handle booleans
+            if (!isNaN(value)) return Number(value); // Handle numbers
+            return value;
+          });
+
+        const [
+          currentMatchIndex = 0,
+          roundEnded = false,
+          finalFlag = false,
+          place3Done = false,
+          place3Sent = false,
+          getLoser = false,
+          alternatingPicker = false,
+        ] = parsedData;
+
+        this.currentMatchIndex = currentMatchIndex;
+        this.roundEnded = roundEnded;
+        this.finalFlag = finalFlag;
+        this.place3Done = place3Done;
+        this.place3Sent = place3Sent;
+        this.getLoser = getLoser;
+        this.alternatingPicker = alternatingPicker;
+      }
+
+      // Load results from the result file
+      const resultData = await fs.readFile(this.resultFilePath, "utf-8");
+      this.results = resultData
+        .split("\n")
+        .filter((line) => line.trim() !== "")
+        .map((line) => line.split(": ")[1]); // Extract only the result part after 'place: '
+    } catch (err) {
+      console.error("Error reading from file:", err);
+    }
+  }
+
+  async saveCurrentLosersAndIndexState() {
+    try {
+      const losers = this.losers.length > 0 ? this.losers.join(",") : "EMPTY";
+      const tempFileData = `${losers}\n${[
+        this.currentMatchIndex || 0,
+        this.roundEnded || true,
+        this.finalFlag || false,
+        this.place3Done || false,
+        this.place3Sent || false,
+        this.getLoser || false,
+        this.alternatingPicker || false,
+      ].join(",")}\n`;
+
+      let resultData = "";
+      for (let i = 0; i < this.results.length; i++) {
+        resultData += `${i + 1} place: ${this.results[i]}\n`;
+      }
+
+      await Promise.all([
+        fs.writeFile(this.tempFilePath, tempFileData),
+        fs.writeFile(this.resultFilePath, resultData),
+      ]);
+    } catch (err) {
+      console.error("Error writing to file:", err);
+    }
+  }
+
   async createNewSection() {
     if (this.sections[this.sections.length - 1].length === 0) return;
     this.currentSection = this.sections[this.sections.length - 1];
     this.sections.push([]);
     this.currentMatchIndex = 0;
-    let dataToWrite = "\nbreak\n\n";
+    let dataToWrite = "\n--SECTION--\n";
     await fs.appendFile(this.filePath, dataToWrite, "utf-8", (err) => {
       if (err) {
         console.error("Error writing to file:", err);
@@ -297,6 +443,155 @@ class Match {
         this.roundEnded = false;
       }
     });
+    await this.saveCurrentLosersAndIndexState();
+  }
+
+  getNextUp() {
+    let alternating = this.alternatingPicker;
+    let tempGetLoser = this.getLoser;
+
+    console.log("\n");
+    console.log("getNextUp model method - before: ");
+    console.log("alternating: ", alternating);
+    console.log("tempMatchIndex: ", this.currentMatchIndex);
+    console.log("tempSection: ", this.currentSection);
+    console.log("tempLosers: ", this.losers);
+    console.log("this.getLoser: " + this.getLoser);
+
+    // If bracket is completed or only final left
+    if (this.results[0] != "" || this.place3Done) return null;
+
+    let tempMatchIndex = this.currentMatchIndex + 2;
+    if (this.getLoser == true) tempMatchIndex -= 2;
+    let tempSection = [...this.currentSection];
+    let tempLosers = [...this.losers];
+
+    // Edge case for when there are 3 participants in a group
+    if (this.sections[0].length == 3) {
+      return this.getNextUpEdge3()
+    }
+
+    console.log("BEFORE move odd check: tempMatchIndex: ", tempMatchIndex);
+    console.log("BEFORE move odd check: tempSection: ", tempSection);
+
+    // If after current match doing moving of odd element
+    if (tempMatchIndex == tempSection.length - 1) {
+      tempSection = [...this.sections[this.sections.length - 1]];
+      if (alternating == true) {
+        tempSection.unshift("##");
+        tempSection.unshift(this.currentSection[0]);
+        alternating = false;
+        tempMatchIndex = 0;
+      } else {
+        tempSection.push("##");
+        tempSection.push(this.currentSection[tempMatchIndex]);
+        alternating = true;
+        tempMatchIndex = 0;
+      }
+      //tempLosers.push("!!");
+    }
+
+    console.log(
+      "BEFORE round already over check: tempMatchIndex-2: ",
+      tempMatchIndex - 2
+    );
+    console.log("BEFORE round already over check: tempSection: ", tempSection);
+
+    // If round is already over
+    if (tempMatchIndex - 2 > tempSection.length - 1) {
+      tempMatchIndex = 0;
+      tempSection = [...this.sections[this.sections.length - 1]];
+
+      if (alternating == true) alternating = false;
+      else alternating = true;
+    }
+
+    // If next up is big final
+    if (this.place3Sent)
+      return [
+        tempSection[tempSection.length - 2],
+        tempSection[tempSection.length - 1],
+      ];
+
+    console.log("BEFORE round over check: tempSection: ", tempSection);
+    console.log("BEFORE round over check: tempMatchIndex: ", tempMatchIndex);
+    console.log("BEFORE round over check: tempGetLoser: ", tempGetLoser);
+
+    // Simulating next match state if round is going to be over
+    if (tempMatchIndex >= tempSection.length - 1) {
+      if (tempSection.length != 2 && tempMatchIndex == tempSection.length - 1)
+        return [
+          tempLosers[tempLosers.length - 2],
+          tempLosers[tempLosers.length - 1],
+        ];
+      else if (
+        tempSection.length != 2 &&
+        tempGetLoser == true &&
+        tempMatchIndex - 2 == tempSection.length - 1
+      )
+        return [
+          tempLosers[tempLosers.length - 2],
+          tempLosers[tempLosers.length - 1],
+        ];
+      else if (tempSection.length != 2)
+        return [tempLosers[tempLosers.length - 1], "!!"];
+
+      tempMatchIndex = 0;
+      tempSection = [...this.sections[this.sections.length - 1]];
+      if (alternating == false) tempSection.push("##");
+      else tempSection.unshift("##");
+      //tempLosers.push("!!");
+
+      if (alternating == true) alternating = false;
+      else alternating = true;
+    }
+
+    console.log("getNextUp model method - after: ");
+    console.log("alternating: ", alternating);
+    console.log("tempMatchIndex: ", tempMatchIndex);
+    console.log("tempSection: ", tempSection);
+    console.log("tempLosers: ", tempLosers);
+    console.log("\n");
+
+    // If next up small final
+    if (tempSection.length == 2) {
+      return [tempLosers[tempLosers.length - 1], "!!"];
+    }
+
+    if (tempGetLoser == false && tempLosers.length != 0)
+      return [tempLosers[tempLosers.length - 1], "!!"];
+
+    // Normal case
+    if (alternating == false) {
+      if (tempSection.length != 0) {
+        return [tempSection[tempMatchIndex], tempSection[tempMatchIndex + 1]];
+      } else return null;
+      // Reverse order execution
+    } else {
+      if (tempSection.length != 0) {
+        return [
+          tempSection[tempSection.length - tempMatchIndex - 1],
+          tempSection[tempSection.length - tempMatchIndex - 2],
+        ];
+      }
+    }
+  }
+
+  getNextUpEdge3() {
+    console.log("EDGE FOR 3, this.currentSection", this.currentSection)
+    console.log("EDGE FOR 3, this.currentMatchIndex", this.currentMatchIndex)
+    console.log("EDGE FOR 3, this.losers", this.losers)
+
+    if (this.losers.length == 0)
+      return [this.currentSection[this.currentSection.length - 1], "!!"];
+    else if (this.losers.length == 1 && this.currentMatchIndex == 4)
+      return [this.currentSection[this.currentSection.length - 1], this.losers[this.losers.length - 1]];
+    else if (this.losers.length == 1 && this.currentMatchIndex == 0)
+      return [this.currentSection[0], "##"];
+    else if (this.losers.length == 2 && this.currentMatchIndex == 4)
+      return [this.sections[this.sections.length - 1][0], this.sections[this.sections.length - 1][1]];
+    else
+      return null
   }
 
   updateSections() {

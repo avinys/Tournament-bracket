@@ -7,7 +7,13 @@ li div {
 
 li {
     padding: 0;
-    margin: 0
+    margin: 0;
+    text-align: center;
+}
+
+#participant-list-kata-points li {
+    border: 2px solid black;
+    list-style: none;
 }
 
 li div p, li div h3 {
@@ -25,6 +31,10 @@ li div p{
 
 li div h3 {
     width: 35%;
+}
+
+#main-bracket h3 {
+    margin-left: 40px;;
 }
 
 #participant-points li {

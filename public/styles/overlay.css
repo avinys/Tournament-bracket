@@ -1,9 +1,10 @@
-*{
+/* *{
     border-style: solid;
     border-color: black;
-    border-width: 2px;;
-    padding: 10px;
-}
+    border-width: 2px;
+    margin: 0;
+    padding: 0;
+} */
 
 /* #bracket-result-overlay {
     position: fixed;
@@ -18,20 +19,9 @@
     margin: 15px 5px 15px 5px;
 } */
 
-#overlay{
-    display: none;
-    width: 100%;
-    height: 100%;
-    z-index: 1000;
-    position: fixed;
-    top: 0;
-    left: 0;
-    background-color: rgba(0, 0, 0, 0.7);
-    justify-content: center;
-    align-items: center;
-}
+/* Select winner overlay */
 
-#result-overlay{
+#overlay, #result-overlay{
     display: none;
     width: 100%;
     height: 100%;
@@ -49,12 +39,14 @@
     overflow: auto;
 }
 
-#select-winner-overlay, #bracket-result-overlay {
-    /* width: 70%;
-    height: 30%; */
+#select-winner-overlay, #bracket-result-overlay, #kata-points-overlay {
+    position: fixed;
+    width: 70%;
+    height: 30%;
+    min-height: 350px;
     z-index: 1001;
-    top:0;
-    margin: 15px 5%;
+    top:30%;
+    margin: 15px 15%;
     background-color: beige;
     opacity: 1;
     display: flex;
@@ -62,8 +54,29 @@
     border-radius: 6px;
 }
 
-#select-winner-overlay h2{
-    margin-bottom: 0px;
+#kata-points-overlay {
+    height: 500px;
+    top: 15%;
+}
+
+#bracket-result-overlay {
+    padding: 10px 20px;
+    text-align: center;
+    min-height: 0;
+    height: 250px;
+    width: 70%;
+}
+
+#bracket-result-overlay li{
+    width: 30%;
+    margin: 0 auto;
+}
+
+#select-winner-overlay h2, #kata-points-overlay h2{
+    padding: 15px;
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 0;
 }
 
 
@@ -76,7 +89,8 @@
 #overlay-actions{
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: space-around;
+    margin: 25px 15px
 }
 
 button {
@@ -90,7 +104,8 @@ button {
     text-align: center;
     font-size:20px;
     font-weight:500;
-    padding: 5px;
+    padding: 15px;
+    margin: 0 15px;
 }
 
 #aka{
@@ -103,12 +118,14 @@ button {
     color: black;
 }
 
-#overlay-skip,#overlay-submit,#overlay-back {
+#overlay-submit,#overlay-back {
     border-radius: 5px;
     width: 80px;
+    padding: 15px;
+    width: 40%;
 }
 
-#overlay-skip:hover,#overlay-submit:hover,#overlay-back:hover {
+#overlay-submit:hover,#overlay-back:hover {
     opacity: 0.7;
 }
 
@@ -119,4 +136,86 @@ button {
 
 #overlay-back {
     background-color: rgb(194, 192, 192);
+}
+
+
+
+
+
+
+
+/* Confirm winner overlay */
+
+#confirm-winner-overlay{
+    display: none;
+    width: 100%;
+    height: 100%;
+    z-index: 1100;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    justify-content: center;
+    align-items: center;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+#confirm-winner-overlay.active {
+    display: block;
+    overflow: auto;
+}
+
+#confirm-winner-overlay-contents {
+    z-index: 1101;
+    display: flex;
+    flex-direction: column;
+    background-color: beige;
+    width: 60%;
+    padding: 10px;
+    margin: 20px auto;
+    border-radius: 9px;
+    pointer-events: auto;
+    cursor: default;
+    font-size: 20px;
+}
+
+#confirm-winner-overlay-contents p {
+    text-align: left;
+}
+
+#confirm-winner-overlay-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#cancel-confirm-winner-selection {
+    width: 10%;
+    min-width: 85px;
+    cursor: pointer;
+}
+
+#confirm-winner-selection {
+    width: 80%;
+}
+
+#confirm-winner-overlay #alert-message-div {
+    padding: 12px;
+    font-size: 18px;
+}
+
+/* #confirm-winner-overlay button {
+    padding: 12px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: rgb(39, 19, 19);
+    background-color: rgb(83, 73, 73);
+    color: white;
+    border-radius: 9px;
+    font-size: 18px;
+} */
+
+#confirm-winner-overlay button :hover{
+    background-color: rgb(97, 57, 57);
 }

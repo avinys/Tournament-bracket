@@ -1,0 +1,59 @@
+#alert-overlay{
+    display: none;
+    width: 100%;
+    height: 100%;
+    z-index: 1100;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+#alert-overlay.active {
+    display: block;
+    overflow: auto;
+}
+
+#alert-overlay-contents {
+    z-index: 1101;
+    display: flex;
+    flex-direction: column;
+    background-color: beige;
+    width: 60%;
+    padding: 50px;
+    margin: 20px auto;
+    border-radius: 9px;
+    pointer-events: auto;
+    cursor: default;
+}
+
+#alert-overlay-contents p {
+    text-align: left;
+}
+#alert-overlay-contents button {
+    margin: 0 5% 0 95%;
+    cursor: pointer;
+}
+
+#alert-overlay #alert-message-div {
+    padding: 12px;
+    font-size: 18px;
+}
+
+#alert-overlay button {
+    padding: 12px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: white;
+    background-color: rgb(97, 57, 57);
+    color: white;
+    border-radius: 9px;
+}
+
+#alert-overlay button :hover{
+    background-color: rgb(83, 73, 73);
+}

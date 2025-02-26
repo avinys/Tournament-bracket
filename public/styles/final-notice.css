@@ -1,0 +1,15 @@
+#final-notice {
+    width: 100%;
+    padding: 10px;
+    /* position: fixed; */
+    top: 0px;
+    left: 0px;
+    background-color: rgb(214, 54, 54);
+    color: black;
+    text-align: center;
+    display: none;
+}
+
+#final-notice.active {
+    display: block;
+}

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="/styles/general.css">
+    <link rel="stylesheet" href="/styles/alert-overlay.css" />
+    <link rel="stylesheet" href="/styles/upload.css" />
+    <link rel="stylesheet" href="/styles/general.css" />
+
+    <script src="/scripts/alert-overlay.js" defer></script>
+
+    <title>Data upload page</title>
+</head>
+
+<body>
+    <%- include('../partials/alert-overlay.ejs') %>
+        <h3>Data Upload Page</h3>
+
+        <form action="/data/upload-group" method="POST">
+            <div>
+                <label for="type">Choose match type for the group: </label>
+                <select name="type" id="type" required>
+                    <option value="" selected>
+                        -
+                    </option>
+                    <option value="bracket-single-elimination" <%=formData?.type==='bracket-single-elimination'
+                        ? 'selected' : '' %>>
+                        Single elimination
+                    </option>
+                    <option value="bracket-double-elimination" <%=formData?.type==='bracket-double-elimination'
+                        ? 'selected' : '' %>>
+                        Double elimination
+                    </option>
+                    <option value="bracket-kata-points" <%=formData?.type==='bracket-kata-points' ? 'selected' : '' %>>
+                        Groups with points
+                    </option>
+                </select>
+            </div>
+
+            <div>
+                <label for="date">Select match date: </label>
+                <input type="date" name="date" id="date" required value="<%= formData?.date || '' %>">
+            </div>
+
+            <div>
+                <label for="name">Input group name: </label>
+                <input type="text" name="name" id="name" required value="<%= formData?.name || '' %>">
+            </div>
+
+            <div>
+                <label for="group">Input group number (group date and number combination MUST be unique): </label>
+                <input type="text" name="group" id="group" required value="<%= formData?.group || '' %>">
+            </div>
+
+            <div>
+                <label for="participants">Enter participants (every on a new line): </label>
+                <textarea name="participants" id="participants" required><%- (formData?.participants || '').trim() %></textarea>
+            </div>
+
+            <button type="submit">Submit</button>
+        </form>
+
+
+        <a class="btn" href="/">Back</a>
+
+        <script>
+            const correct = <%= correct %>; // `false` when validation fails
+            const message = `<%- message || ''%>`; // Error message
+
+            document.addEventListener("DOMContentLoaded", () => {
+                const alertOverlay = document.getElementById("alert-overlay");
+                const alertMessageDiv = document.querySelector("#alert-overlay-contents p");
+                const alertCloseButton = document.getElementById("alert-close-button");
+
+                // Check the value of `correct` and display the alert if it's false
+                if (correct === false) {
+                    alertMessageDiv.textContent = message; // Set the alert message
+                    alertOverlay.classList.add("active"); // Show the alert overlay
+                }
+            });
+        </script>
+</body>
+
+</html>

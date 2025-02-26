@@ -16,10 +16,14 @@ const group = document
   .textContent.split(" ")[6]
   .split(":")[0];
 
+const nextUpContentDiv = document.getElementById("next-up-content");
+
 let addEventListenerToParticipantsFlag = false;
+let akaEventHandler = null;
+let shiroEventHandler = null;
 
 async function postWinner(index) {
-  await fetch("/bracket/next", {
+  await fetch("/bracket-double-elimination/next", {
     method: "POST", // Specify the request method
     headers: {
       "Content-Type": "application/json", // Specify the content type
@@ -41,10 +45,12 @@ async function postWinner(index) {
       if (data["isEnd"] == true) {
         startMatchBtn.textContent = "View Results";
       }
+      generateBracket(data["sections"], data["results"]);
+      generateLowerBracket(data["losers"], data["results"]);
     })
     .catch((error) => {
       console.error("There was a problem with the fetch operation:", error);
-    });s
+    });
 }
 
 function akaButtonParticipantFunction() {
@@ -59,7 +65,7 @@ async function startMatch() {
   let participantOne;
   let participantTwo;
 
-  await fetch("/bracket/next", {
+  await fetch("/bracket-double-elimination/next", {
     method: "GET", // Specify the request method
     headers: {
       "Content-Type": "application/json", // Specify the content type
@@ -82,25 +88,96 @@ async function startMatch() {
       } else {
         if (
           data["receivedData"] != [[], []] &&
-          data["receivedData"][0].length != 1
+          Array.isArray(data["receivedData"][0])
         ) {
           aka.textContent = data["receivedData"][0][0];
           shiro.textContent = data["receivedData"][0][1];
-          console.log("Data received:", data); // Handle the response data from the server
+          console.log("Data received:", data);
           akaPostWinnerData = data["receivedData"][1][0];
           shiroPostWinnerData = data["receivedData"][1][1];
-          if (!addEventListenerToParticipantsFlag) {
-            aka.addEventListener("click", akaButtonParticipantFunction);
-            shiro.addEventListener("click", shiroButtonParticipantFunction);
-            addEventListenerToParticipantsFlag = true;
-          }
+
+          // Re-add eventListeners on aka and shiro
+
+          if (akaEventHandler)
+            aka.removeEventListener("click", akaEventHandler);
+          if (shiroEventHandler)
+            shiro.removeEventListener("click", shiroEventHandler);
+
+          akaEventHandler = () =>
+            openConfirm(
+              akaButtonParticipantFunction,
+              "bracket-double-elimination",
+              "AKA",
+              data["receivedData"][0][0]
+            );
+
+          shiroEventHandler = () =>
+            openConfirm(
+              shiroButtonParticipantFunction,
+              "bracket-double-elimination",
+              "SHIRO",
+              data["receivedData"][0][1]
+            );
+
+          aka.addEventListener("click", akaEventHandler);
+          shiro.addEventListener("click", shiroEventHandler);
+
+          // aka.addEventListener("click", akaButtonParticipantFunction);
+          // shiro.addEventListener("click", shiroButtonParticipantFunction);
+          addEventListenerToParticipantsFlag = true;
           overlay.classList.add("active");
-        }
+        } else if (!Array.isArray(data["receivedData"][0])) location.reload();
       }
     })
     .catch((error) => {
       console.error("There was a problem with the fetch operation:", error);
     });
+  getNextUp();
+}
+
+async function getNextUp() {
+  await fetch("/bracket-double-elimination/next-up", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      fillNextUp(data["data"]);
+    })
+    .catch((error) => {
+      console.error("There was a problem with the fetch operation:", error);
+    });
+}
+
+function fillNextUp(data) {
+  let header = "<h3>Next up:</h3>";
+  let AKA = "<p><b>AKA: </b>";
+  let SHIRO = "<p><b>SHIRO: </b>";
+  if (data == null) {
+    nextUpContentDiv.innerHTML = "<h3>No more upcomming fights</h3>";
+  } else if (data == "&&") return;
+  else {
+    if (data[0] != "##" && data[0] != "!!") AKA += data[0] + "</p>";
+    else if (data[0] == "##") AKA += "***Winner of current fight***" + "</p>";
+    else AKA += "***Loser of current fight***" + "</p>";
+
+    if (data[1] != "##" && data[1] != "!!") SHIRO += data[1] + "</p>";
+    else if (data[1] == "##") SHIRO += "***Winner of current fight***" + "</p>";
+    else SHIRO += "***Loser of current fight***" + "</p>";
+
+    nextUpContentDiv.innerHTML = `
+      ${header}
+      ${AKA}
+      ${SHIRO}
+    `;
+  }
 }
 
 function fillResultOverlay(result) {
@@ -119,6 +196,15 @@ function fillResultOverlay(result) {
   });
 
   bracketResultOverlayContent.appendChild(olElement);
+  const close = document.createElement("button");
+  close.textContent = "Close";
+  close.addEventListener("click", removeOverlay);
+  bracketResultOverlayContent.appendChild(close);
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+  generateBracket(sections, results);
+  generateLowerBracket(losers, results);
+  getNextUp();
+});
 startMatchBtn.addEventListener("click", startMatch);

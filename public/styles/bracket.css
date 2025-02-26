@@ -1,4 +1,4 @@
-#main-bracket {
+/* #main-bracket {
     display: flex;
     flex-direction: row;
     width: 90%;
@@ -13,5 +13,76 @@ ul{
 
 #bracket-actions button {
     margin: 0px auto;
+} */
+
+/* For dynamic bracket */
+
+table {
+    margin-top: 2em;
+    border-collapse: collapse;
+    width: 100%;
+    height: 60%
+  }
+
+  table, th {
+    border: 1px solid black;
+  }
+
+
+  th, td {
+    text-align: center;
+    vertical-align: middle;
+    min-width: 150px;
+    height: 1rem;
+  }
+  /* For simple approach */
+  #bracket td {
+    border: 1px solid black;
+  }
+
+  /* For spaced-out approach */
+  /* td div {
+    margin-top: 50px;
+    border-bottom-width: 3px;
+    border-bottom-style: solid;
+    border-bottom-color: black;
+  } */
+
+  caption {
+    font-size: 1.5em;
+    text-align: left;
+    margin-bottom: 10px;
+  }
+
+  #lower-bracket {
+    border-style: none;
+  }
+
+  #lower-bracket td {
+    border-style: none;
+  }
+
+  #lower-bracket td.active {
+    border: 1px solid black;
+  }
+
+  #bracket-actions {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+  }
+  
+
+#start-match-button {
+  width: 80%;
+  margin: 5px auto;
+  padding: 10px;
+  font-size: 18px;
+  background-color: rgb(102, 79, 79);
 }
 
+#start-match-button:hover {
+  background-color: rgb(150, 142, 142);
+}
+
+  
