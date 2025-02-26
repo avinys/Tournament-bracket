@@ -1,5 +1,3 @@
-
-
 async function getHome(req, res) {
     res.render("pages/index.ejs")
 }

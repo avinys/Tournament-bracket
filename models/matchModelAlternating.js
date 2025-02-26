@@ -44,7 +44,8 @@ class Match {
     try {
       //await deleteFile(this.tempFilePath);
       await this.loadCurrentLosersAndIndexState();
-      //await this.saveCurrentLosersAndIndexState();
+      await this.loadSections();
+      await this.saveCurrentLosersAndIndexState();
       //console.log("initializeState: ",this.alternatingPicker)
     } catch (err) {
       console.error("Error during state initialization:", err);

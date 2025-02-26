@@ -200,12 +200,16 @@ class Data {
       date.trim() + "-group-" + group.trim() + "-results.txt";
     const filePath = "./data/" + fileName;
     const resultFilePath = "./data/" + resultFileName;
+    const tempFilePath = "./data/temp/TEMP-" + fileName;
     try {
       await fs.unlink(filePath);
       console.log(`Deleted file: ${filePath}`);
 
       await fs.unlink(resultFilePath);
       console.log(`Deleted file: ${resultFilePath}`);
+    
+      await fs.unlink(tempFilePath);
+      console.log(`Deleted file: ${tempFilePath}`)
 
       let groups = await this.getGroupMatchTypes();
       groups = groups.filter((group) => group[0] != fileName);

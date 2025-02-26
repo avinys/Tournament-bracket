@@ -44,7 +44,9 @@ class Match {
 
   async initializeState() {
     try {
-      await deleteFile(this.tempFilePath);
+      //await deleteFile(this.tempFilePath);
+      await this.loadCurrentLosersAndIndexState();
+      await this.loadSections();
       await this.saveCurrentLosersAndIndexState();
       //console.log("initializeState: ",this.alternatingPicker)
     } catch (err) {
@@ -95,6 +97,7 @@ class Match {
     console.log("getLoser in getMatch: ", this.getLoser);
     console.log("alternatingPicker in getMatch: ", this.getLoser);
     console.log("currentSection in getMatch: ", this.currentSection);
+    console.log("getMatch. Loaded results: ", this.results)
     if (this.results[0] != "") return this.results;
 
     // Add a new section if the round is over
@@ -124,6 +127,7 @@ class Match {
         this.getLoser == false;
       }
     }
+
     // Upper bracket execution
     // Normal order execution
     if (this.alternatingPicker == false) {
@@ -170,7 +174,9 @@ class Match {
     }
   }
 
-  getMatchFinal() {
+  async getMatchFinal() {
+    await this.loadSections();
+    await this.loadCurrentLosersAndIndexState();
     console.log("getMatchFinal(). Sections: ", this.sections);
     if (this.currentSection.length == 2) {
       if (!this.place3Done) {
