@@ -67,6 +67,7 @@ class Match {
     }
 
     async getMatch() {
+        await this.loadSections();
         console.log("Participants in getMatch: ", this.participants);
 
         if (this.finalFlag == true) {
@@ -94,7 +95,7 @@ class Match {
             scores.pop();
         }
     
-        //console.log("Scores in matchResult model: ", scores);
+        console.log("Scores in matchResult model: ", scores);
     
         for (let score of scores) roundScore += score;
     
@@ -104,15 +105,17 @@ class Match {
         this.currentParticipants[this.currentMatchIndex].totalPoints =
             this.currentParticipants[this.currentMatchIndex].totalPoints.toFixed(1);
         this.currentMatchIndex++;
+
+        await this.saveState();
     
         if (this.currentMatchIndex === this.currentParticipants.length) {
             this.createNewSection();
             return this.participants;
         }
     
-        //console.log("Participants in matchResult: ", this.participants);
+        console.log("Participants in matchResult: ", this.participants);
     
-        await this.saveState();
+        //await this.saveState();
     
         return this.participants;
     }
