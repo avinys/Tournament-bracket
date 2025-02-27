@@ -201,15 +201,24 @@ class Data {
     const filePath = "./data/" + fileName;
     const resultFilePath = "./data/" + resultFileName;
     const tempFilePath = "./data/temp/TEMP-" + fileName;
+    let errorFile = "";
     try {
+      errorFile = filePath;
       await fs.unlink(filePath);
       console.log(`Deleted file: ${filePath}`);
 
+      errorFile = resultFilePath;
       await fs.unlink(resultFilePath);
       console.log(`Deleted file: ${resultFilePath}`);
     
-      await fs.unlink(tempFilePath);
-      console.log(`Deleted file: ${tempFilePath}`)
+      try {
+        errorFile = tempFilePath;
+        await fs.unlink(tempFilePath);
+        console.log(`Deleted file: ${tempFilePath}`)
+      } catch(err) {
+        console.log(`Group ${fileName} does not have a temp file or it was not found.`);
+      }
+      
 
       let groups = await this.getGroupMatchTypes();
       groups = groups.filter((group) => group[0] != fileName);
@@ -221,13 +230,14 @@ class Data {
       const logContents = groups.map(
         (group) => group[0] + "--SEP--" + group[1] + "--SEP--" + group[2] + "\n"
       );
-
+      
+      errorFile = this.groupMatchLogPath;
       await fs.writeFile(this.groupMatchLogPath, logContents);
     } catch (err) {
       if (err.code !== "ENOENT") {
-        console.error(`Error deleting file ${filePath}:`, err);
+        console.error(`Error deleting file ${errorFile}:`, err);
       } else {
-        console.log(`File not found, nothing to delete: ${filePath}`);
+        console.log(`File not found, nothing to delete: ${errorFile}`);
       }
     }
   }
