@@ -6,12 +6,28 @@
 
     <link rel="stylesheet" href="/styles/general.css">
     <link rel="stylesheet" href="/styles/view-groups.css" />
-    <link rel="stylesheet" href="/styles/general.css" />
+
+
+    
 
     <title>View groups</title>
   </head>
   <body>
     <h3>Previously uploaded groups:</h3>
+    <div>
+      <label for="sort-groups-dropdown">Sort by</label>
+      <select id="sort-groups-dropdown">
+        <option selected value="default">--</option>
+        <option value="group-name-asc">Group name ascending</option>
+        <option value="group-name-desc">Group name descending</option>
+        <option value="date-asc">Date ascending</option>
+        <option value="date-desc">Date descending</option>
+        <option value="group-number-asc">Group number ascending</option>
+        <option value="group-number-desc">Group number descending</option>
+        <option value="match-type-asc">Match type ascending</option>
+        <option value="match-type-desc">Match type descending</option>
+      </select>
+    </div>
     <table id="group-table">
       <thead>
         <th>Group Name</th>
@@ -21,20 +37,15 @@
         <th>Actions</th>
       </thead>
       <tbody>
-        <% for (let group of groups) { %>
-            <tr>
-                <td><%= group[3] %></td>
-                <td><%= group[0] %> </td>
-                <td><%= group[1] %></td>
-                <td><%= group[2] %></td>
-                <td class="actions">
-                  <a class="btn-table" href="/<%= group[2] + "?date=" + group[0] + "&group=" + group[1]%>">View</a>
-                  <a class="btn-table" href="/data/delete-group<%= "?date=" + group[0] + "&group=" + group[1]%>">Delete</a>
-                </td>
-            </tr>
-        <% } %>
+
       </tbody>
     </table>
     <a class="btn" href="/">Back</a>
   </body>
 </html>
+
+<script>
+  const groups = <%- JSON.stringify(groups) %>;
+</script>
+
+<script src="/scripts/view-groups.js"></script>
