@@ -1,5 +1,6 @@
 const groupTableBody = document.querySelector("#group-table tbody")
 const sortDropdown = document.getElementById("sort-groups-dropdown")
+const groupSearchbar = document.getElementById("group-searchbar")
 
 function renderTable(groupsData) {
     groupTableBody.innerHTML = "";
@@ -58,10 +59,22 @@ function sortGroups(criteria) {
     renderTable(sortedGroups);
 }
 
+function normalizeText(text) {
+    return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+function searchGroups(input) {
+    const query = normalizeText(input);
+    const filteredGroups = groups.filter(group => normalizeText(group[3]).includes(query));
+    renderTable(filteredGroups);
+}
 
 document.addEventListener("DOMContentLoaded", function () {
     renderTable(groups);
     sortDropdown.addEventListener("change", function () {
         sortGroups(sortDropdown.value)
+    })
+    groupSearchbar.addEventListener("input", function() {
+        searchGroups(groupSearchbar.value)
     })
 });

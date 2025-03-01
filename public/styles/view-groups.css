@@ -1,13 +1,37 @@
-table {
-    margin-top: 2em;
+#group-table {
+    margin-top: 1em;
     border-collapse: collapse;
     width: 100%;
 }
+
 
 table, th, td {
     border: 1px solid black;
 }
 
+#sort-groups-dropdown, #group-searchbar {
+    padding: 5px;
+}
+
 #sort-groups-dropdown {
     padding: 5px;
+}
+
+#group-list-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+
+#group-searchbar-container {
+    width: 60%;
+}
+
+#sort-groups-container label {
+    margin-right: 5px;
+}
+#group-searchbar {
+    width: 100%;
+    border-radius: 5px; 
 }

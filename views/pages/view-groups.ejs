@@ -14,20 +14,27 @@
   </head>
   <body>
     <h3>Previously uploaded groups:</h3>
-    <div>
-      <label for="sort-groups-dropdown">Sort by</label>
-      <select id="sort-groups-dropdown">
-        <option selected value="default">--</option>
-        <option value="group-name-asc">Group name ascending</option>
-        <option value="group-name-desc">Group name descending</option>
-        <option value="date-asc">Date ascending</option>
-        <option value="date-desc">Date descending</option>
-        <option value="group-number-asc">Group number ascending</option>
-        <option value="group-number-desc">Group number descending</option>
-        <option value="match-type-asc">Match type ascending</option>
-        <option value="match-type-desc">Match type descending</option>
-      </select>
+
+    <div id="group-list-actions">
+      <div id="group-searchbar-container">
+        <input id="group-searchbar" type="text" name="group-search" placeholder="Search by group name"/>
+      </div>
+      <div id="sort-groups-container">
+        <label for="sort-groups-dropdown">Sort by</label>
+        <select id="sort-groups-dropdown">
+          <option selected value="default">--</option>
+          <option value="group-name-asc">Group name ascending</option>
+          <option value="group-name-desc">Group name descending</option>
+          <option value="date-asc">Date ascending</option>
+          <option value="date-desc">Date descending</option>
+          <option value="group-number-asc">Group number ascending</option>
+          <option value="group-number-desc">Group number descending</option>
+          <option value="match-type-asc">Match type ascending</option>
+          <option value="match-type-desc">Match type descending</option>
+        </select>
+      </div>
     </div>
+
     <table id="group-table">
       <thead>
         <th>Group Name</th>
