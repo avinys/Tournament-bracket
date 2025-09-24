@@ -8,7 +8,9 @@ The system includes:
 Upcoming features:
 1) Option to let user select if there should be 1 third place or 2.
 2) Protocol forming for better visualization of the current state and results.
-3) On-screen vizualization for user of the current tournament state
 
 Would be good add-ons:
 1) Using database for storing information instead of a txt file
+
+## 2025 note
+I intend to redo the application with React + Typescript, ASP.NET and MySQL database. Currently I am at the stage of collecting changed requirements for the application and planning, actively communicating and collaborating with current users.
